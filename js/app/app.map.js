@@ -3,6 +3,7 @@ app.controller("MapController", function($rootScope, store){
     var map = L.map('map', {
         crs: L.CRS.Simple,
         maxZoom: 2,
+        minZoom: -1,
         zoomControl: false
     });
 
