@@ -1,0 +1,271 @@
+1 - Формула Кино
+2 - Город детей «Минополис»
+3 - Ледовый каток
+4 - OZ One
+5 - Боулинг
+6 - Бильярд
+7 - Караоке Клуб
+29 - Bebe
+32 - Bessini
+34 - COLIN’S
+38 - Fun Day
+48 - Lime
+60 - SELA
+64 - Vestido
+70 - D&P Perfumum
+73 - Айкрафт
+86 - Giovanni Botticelli
+104 - SELA
+120 - Орхидея
+138 - Cropp
+141 - H&M
+154 - Quiksilver
+157 - SELA
+169 - Quiksilver
+177 - SGH Дом солнцезащитных очков
+199 - Мебельный салон Елена
+203 - Baby Club
+223 - ACCENT
+228 - SGH Дом солнцезащитных очков
+234 - ЗОЛОТОЙ ЛОТОС
+239 - Baskin
+240 - BBQ time
+242 - Coffee Space
+244 - FAD BAR
+247 - ProSushi
+250 - ЁХА Пицца
+252 - Коровка из Кореновки
+253 - Мармарит
+254 - СУШИВЁСЛА
+257 - FAD BAR
+258 - Tanoshy
+259 - Мармарит
+262 - Dаs Koлбаs
+263 - FAD BAR
+266 - McDonalds
+267 - ProSushi
+270 - ЁХА Пицца
+272 - Коровка из Кореновки
+273 - Мармарит
+274 - СУШИВЁСЛА
+277 - BBQ time
+279 - Coffee Space
+280 - Coffeeshop Company
+281 - FAD BAR
+284 - Блинберри
+288 - Коровка из Кореновки
+289 - Мармарит
+307 - Circle Boutique
+308 - Colin's
+309 - Cropp Town
+312 - JS Selected
+313 - Kiabi
+314 - KOTON
+315 - Lacoste
+316 - LC Waikiki
+317 - Levi's
+318 - Mango
+319 - Massimo Dutti
+320 - Modis
+321 - O'stin
+322 - Pull&Bear
+323 - SELA
+324 - Takko Fashion
+325 - Finn Flare
+326 - Terranova
+327 - U.S. Polo Assn.
+328 - Zolla
+329 - Снежная Королева
+330 - House
+331 - Reserved
+332 - Shaman
+333 - Westland
+334 - BGN
+335 - Concept Club
+336 - Kira Plastinina
+337 - Stradivarius
+338 - Waggon
+339 - Zara
+340 - Zarina
+341 - Aventure
+342 - BeFree
+343 - Noche Mio
+344 - DS Studio
+345 - Incity
+346 - Love Republic
+347 - Mohito
+348 - Olivero Detti
+349 - Буду мамой
+350 - Cacharel
+351 - Giovanni Botichelli
+352 - Henderson
+353 - Kanzler
+354 - Paul Becker
+355 - Pierre Cardin
+356 - Zara Man
+357 - Rich Man
+358 - Zara Kids
+359 - Acoola
+360 - Adidas Kids
+361 - Crockid
+362 - Danilo
+363 - Imaginarium
+364 - LEGO
+365 - SHAGOVITA
+366 - Буду мамой
+367 - Детский мир
+368 - Дочки-Сыночки
+369 - Катюша
+370 - Оранжевый Слон
+371 - О'КЕЙ
+372 - PODIUM market
+373 - Proffline
+374 - L'OCCITANE
+376 - Lulu Paris
+377 - Yves Rocher
+378 - Л'Этуаль
+379 - Аптека Радуга
+380 - Айкрафт Оптика
+381 - РИВ ГОШ
+382 - Цирюльник
+383 - Calzedonia
+384 - Intimissimi
+385 - Oysho
+386 - Tezenis
+387 - ORCHIDEJA
+388 - Anabel Arto
+389 - Atlantic
+390 - Prisco
+391 - 3-15
+392 - Casio
+393 - Parfois
+394 - Pandora
+395 - Persian
+396 - Sunlight
+397 - Sunglass Hut
+398 - Time Square
+399 - Валдай
+400 - Времечко
+401 - Гранатовый Браслет
+402 - Золотой Ларец
+403 - Золотой Лотос
+405 - Магия золота
+406 - Ростзолото
+407 - Серебряный слон
+408 - Ювелир Дизайн
+409 - Adidas
+410 - Adidas Neo
+411 - Adidas Originals
+412 - Puma
+413 - Quicksilver
+414 - Reebok
+415 - Декатлон
+416 - Спортмастер
+417 - Alba
+418 - Antonio Biaggi
+419 - Belwest
+420 - Carlo Pazolini
+421 - Etaloni
+422 - KARI
+423 - Mario Mikke
+424 - Monsorro
+425 - No One
+426 - Paolo Conte
+427 - Rendez -Vous
+428 - Rieker
+429 - Respect
+430 - Tamaris
+431 - TJ Collection
+432 - Zenden
+433 - Пан Чемодан
+434 - Центр обувь
+435 - Baggage
+436 - ECCO
+437 - Aura of Bogemia
+438 - Gipfel
+439 - Hoff
+440 - OBI
+441 - Togas
+442 - Williams Et Oliver
+443 - Zara Home
+444 - Арт-Гобелен
+445 - Ap Home
+446 - Askona
+448 - Desondo
+449 - Fandeco
+450 - Kare
+451 - Kitchen Cool
+452 - Зеленый Попугай
+453 - МАРТ
+454 - Мебель от Горелова
+455 - Салон мебели "Елена"
+456 - Уютерра
+457 - DIXIS
+458 - Imarket
+459 - iБутик
+460 - I-Vape
+461 - JoyeShop
+462 - Samsung
+463 - Tele 2
+464 - Yota
+465 - Евросеть
+466 - Мегафон
+467 - МТС
+468 - Телефон.ру
+469 - DNS
+470 - re:Store
+471 - Атриум
+472 - М.Видео
+473 - ЭСКО
+474 - Aura of Bohemia
+475 - Postulat
+476 - Клумба
+477 - Три желания
+478 - Атриум
+479 - Кофейная кантата
+480 - Экспедиция
+481 - DM-АВТО
+482 - Грязи.net
+483 - Лена Ленина
+484 - ПОЧТА РОССИИ
+485 - Темп Авто
+486 - Экспресс Ателье
+487 - Карамелька
+488 - Animal Club
+489 - Zveruga
+490 - Burger King
+491 - KFC
+492 - Livan House
+493 - Mc Donald's
+494 - Prima Vera
+495 - Subway
+496 - БлинБерри/Сушивёсла
+497 - Гирос
+498 - Голый повар
+499 - Жар Пицца
+500 - Ташир Пицца
+501 - Теремок
+502 - De Marco
+503 - Origami
+504 - Голый повар
+505 - FadBar
+506 - Ледовый каток SKY ICE
+507 - Avatar 7D
+508 - Baby Club
+509 - Батутный парк "Маугли"
+510 - Карамелька
+511 - Сокровища Пирата
+512 - Страна Великания
+513 - Фан-Чулан
+514 - OZ Боулинг/VIP Боулинг
+515 - OZ Караоке
+516 - OZ Бильярд
+517 - Минополис
+518 - Формула Кино
+519 - Coffeeshop company
+520 - 100% сок
+521 - БлинБерри/Сушивёсла
+522 - Мясная ферма
+523 - Baskin Robbins
+524 - Коровка из Кореновки
+525 - Космик латте
