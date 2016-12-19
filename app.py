@@ -2,12 +2,26 @@
 # from gevent import monkey
 # monkey.patch_all()
 import codecs
+import json
 import os
+import random
 from flask import Flask, jsonify
 from flask import send_from_directory
 from gevent import wsgi
 
+# Подготавливаем tenants.json
+tenants_json = os.path.join('.', 'data', 'tenants.json')
+if not os.path.exists(tenants_json):
+    f = os.path.join('.', 'data', 'tenats.txt')
+    with codecs.open(f, 'r', "utf-8") as file:
+        pairs = [ line.split('-') for line in file.readlines()]
+        tenants = { it[0].strip() : dict(title=it[1].strip(), floor=i % 3 + 1, geom=None) for i, it in enumerate(pairs) }
+        with codecs.open(tenants_json, 'w', 'utf-8') as json_file:
+            json_file.write(json.dumps(tenants, ensure_ascii=False))
+
+
 app = Flask(__name__, static_folder='')
+
 
 @app.route('/')
 def index():
@@ -27,20 +41,8 @@ def send_data(path):
 
 @app.route('/tenants/')
 def tenants():
-    f = os.path.join('.', 'data', 'tenats.txt')
-    with codecs.open(f, 'r', "utf-8") as file:
-        pairs = [ line.split('-') for line in file.readlines()]
-        tenant_list = [ {"id": it[0].strip(), "title":it[1].strip() } for it in pairs]
-        return jsonify(tenant_list)
-
-
-
-# f = os.path.join('.', 'data', 'tenats.txt')
-# with codecs.open(f, 'r', "utf-8") as file:
-#     pairs = [ line.split(u'-') for line in file.readlines()]
-#     tenant_list = [{"id": it[0].strip(), "title": it[1].strip()} for it in pairs]
-#     print tenant_list
-
+    with codecs.open(tenants_json, 'r', "utf-8") as file:
+        return file.read()
 
 
 server = wsgi.WSGIServer(('127.0.0.1', 5000), application=app, log=None)

@@ -11,7 +11,7 @@ app.factory('store', function(reducers, requests){
 
     s.next = function(action){
         var old_state = s.state;
-        var new_state = reducers(s, action);
+        var new_state = reducers(s.state, action);
         s.state = new_state;
 
         var props = changes(new_state, old_state);

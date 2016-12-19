@@ -22,3 +22,4 @@ function changes(obj1, obj2){
 
 
 console.log( changes(obj1.s2, obj2.s2) )
+console.log(_.partial())

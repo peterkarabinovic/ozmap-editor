@@ -13,42 +13,105 @@
         padding-top: 12px;
         padding-bottom: 12px;
     }
+    #cards {
+         position: absolute;
+        top: 51px;
+        bottom: 0px;
+        left: 0px;
+        width: 430px;
+        overflow: auto; 
+    }
     #map {
         position: absolute;
         top: 51px;
         bottom: 0px;
-        left: 400px;
+        left: 430px;
         right: 0px;
-    }        
+    }   
+    #floors {
+        position: absolute;
+        top: 58px;
+        right: 7px;
+        z-index: 1001;
+    }     
      </style>
 </head>
 <body ng-app="ozmap-editor">
 
 <!-- Navbar -->
-<div class="w3-top">
+<div class="w3-top ">
   <ul ng-controller="TabController" 
     class="w3-navbar w3-top w3-left-align w3-large w3-teal">
         <li><a href="#" 
                ng-click="select('tenants_tab')"
-               ng-class="{'w3-white': isSelected('tenants_tab'), 'w3-hover-opacity': !isSelected('tenants_tab') }">Арендаторы</a></li>
+               ng-class="{'w3-white': isSelected('tenants_tab'), 'w3-hover-opacity': notSelected('tenants_tab') }">Арендаторы</a></li>
         <li><a href="#"
                ng-click="select('graph_tab')"
-               ng-class="{'w3-white': isSelected('graph_tab'), 'w3-hover-opacity': !isSelected('graph_tab') }">Граф точек</a></li>
+               ng-class="{'w3-white': isSelected('graph_tab'), 'w3-hover-opacity': notSelected('graph_tab') }">Граф точек</a></li>
   </ul>
 </div>
 
-<!-- Sidenav -->
-<nav class="w3-sidenav w3-collapse w3-theme-l5 w3-animate-left" style="z-index:3;width:400px;margin-top:51px;" id="mySidenav">
-    <div id="out"></div>
-</nav>
 
-<!-- Map -->
+<div id="cards" class="w3-container">
+    <div class="w3-padding-8" ng-controller="TenantsController" ng-hide="notSelected('tenants_tab') ">
+        <table class="w3-table-all w3-hoverable" ng-hide="edited_tenant">
+            <tr class="w3-light-grey">
+                <th>ID</th>
+                <th>Название</th>
+                <th>Геометрия</th>
+            </tr>
+            <tbody style="cursor:pointer">
+                <tr ng-repeat="t in tenants" ng-click="onEdit(t)">
+                    <td>{{t.id}}</td>
+                    <td>{{t.title}}</td>
+                    <td class="w3-text-teal w3-center" title="Наличие геометри">{{t.geom ? '✔' : ''}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div  ng-show="edited_tenant" >
+            <table class="w3-table w3-light-grey">
+                <tr>
+                    <td class="w3-large">Название:</td>
+                    <td>{{edited_tenant.title}}</td>
+                </tr>
+                <tr>
+                    <td class="w3-large">Этаж:</td>
+                    <td>{{edited_tenant.floor}}</td>
+                </tr>
+                <tr>
+                     <td class="w3-large">Геометрия:</td>
+                     <td>{{geomType(edited_tenant)}}</td>
+                </tr>
+            </table>
+            <p>
+                Используйте инструменты на карте для рисования геометрии. 
+            </p>
+            <div class="w3-row w3-padding-8 w3-right" ng-hide="tenant_saving">
+                <button class="w3-btn w3-teal" ng-disabled="noNeedSave()" ng-click="onSave()">Сохранить</button>
+                <button class="w3-btn w3-teal" ng-click="closeEdit()">Отмена</button>
+            </div>
+            <p class="w3-large w3-text-green w3-right-align" ng-show="tenant_saving">Подождите, пожалуйста ...</p>
+            
+                            
+        </div>
+    </div>
+    <div ng-controller="GraphController" ng-hide="notSelected('graph_tab')"></div>
+</div>
 <div id="map" class="w3-light-grey" ng-controller="MapController">
+</div>   
+
+<div id="floors" ng-controller="FloorsController">
+    <p>
+        <button class="w3-btn w3-teal w3-border" ng-class="{'w3-white': floor == 1}" ng-click="switchFloor(1)">1 этаж</button>
+        <button class="w3-btn w3-teal w3-border" ng-class="{'w3-white': floor == 2}" ng-click="switchFloor(2)">2 этаж</button>
+        <button class="w3-btn w3-teal w3-border" ng-class="{'w3-white': floor == 3}" ng-click="switchFloor(3)">3 этаж</button>
+    </p>
 </div>
 
 <script src="js/lib/angular-1.2.16.js"></script>
 <script src="js/lib/leaflet-src.js"></script>
-<script src="js/lib/lodash.js"></script>
+<script src="js/lib/leaflet.draw-src.js"></script>
+<script src="js/lib/underscore-1.8.3.js"></script>
 <script src="js/app/app.js"></script>
 <script src="js/app/app.logic.js"></script>
 <script src="js/app/app.map.js"></script>
