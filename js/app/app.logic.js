@@ -74,7 +74,7 @@ app.factory('reducers', function(){
                     geom = action.payload.geometry;
                 if( tenants_state[id] ) {
                     var t = _.extend({}, tenants_state[id], {geom:geom});
-                    return _.extend({}, tenants_state, {id: t})
+                    return _.extend({}, tenants_state, _.object([id], [t]));
                 }
             default:
                 return tenants_state;

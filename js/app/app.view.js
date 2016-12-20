@@ -99,7 +99,11 @@ app.controller("TenantsController", function($scope, store, actions){
     store.on('tenants ui.selected_floor', function(e){
         var floor = store.state.ui.selected_floor;
         var tenants = _.filter(store.state.tenants, function(it) { return it.floor == floor} );
-        $apply(function(){ $scope.tenants = tenants; });
+        $apply(function(){ 
+            $scope.tenants = tenants;
+            // $scope.tenants.length = 0;
+            // _.each(tenants,function(t) { $scope.tenants.push(t)} )
+        });
     });
 });
 

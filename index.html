@@ -54,7 +54,7 @@
 
 
 <div id="cards" class="w3-container">
-    <div class="w3-padding-8" ng-controller="TenantsController" ng-hide="notSelected('tenants_tab') ">
+    <div class="w3-padding-8" ng-controller="TenantsController as ctrl" ng-hide="notSelected('tenants_tab') ">
         <table class="w3-table-all w3-hoverable" ng-hide="edited_tenant">
             <tr class="w3-light-grey">
                 <th></th>
@@ -63,8 +63,9 @@
                 <th>Геометрия</th>
             </tr>
             <tbody style="cursor:pointer">
-                <tr ng-repeat="t in tenants">
-                    <td><input type="checkbox" ng-checked="isVisible(t)" 
+                <tr ng-repeat="t in tenants track by t.id">
+                    <td><input type="checkbox" ng-show="t.geom"
+                                               ng-checked="isVisible(t)" 
                                                ng-click="toggleVisibility(t.id)"></td>
                     <td>{{t.id}}</td>
                     <td ng-click="onEdit(t)">{{t.title}}</td>
