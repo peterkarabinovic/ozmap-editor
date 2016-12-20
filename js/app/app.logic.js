@@ -70,12 +70,12 @@ app.factory('reducers', function(){
             case TENANT_LOADED:
                 return action.payload;
             case TENANT_HAS_SAVED:
-                return _.map(tenants_state, function(t){
-                    if(t.id == action.payload.id) {
-                        return _.extend({}, t, {geom:action.payload.geometry})
-                    }
-                    return t;
-                })  
+                var id = action.payload.id,
+                    geom = action.payload.geometry;
+                if( tenants_state[id] ) {
+                    var t = _.extend({}, tenants_state[id], {geom:geom});
+                    return _.extend({}, tenants_state, {id: t})
+                }
             default:
                 return tenants_state;
         }

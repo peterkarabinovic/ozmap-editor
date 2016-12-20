@@ -51,7 +51,7 @@ def post_tenant(id):
     with codecs.open(tenants_json, 'r', "utf-8") as file:
         tenants = json.load(file)
         print tenants[id]
-        tenants[id]['geom'] = json.loads(geometry) if geometry else  'null'
+        tenants[id]['geom'] = json.loads(geometry) if geometry else  None
         with codecs.open(tenants_json, 'w', 'utf-8') as json_file:
             json_file.write(json.dumps(tenants, ensure_ascii=False))
 
