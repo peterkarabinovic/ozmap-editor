@@ -5,3 +5,14 @@ app.run(function(store){
 });
 
 
+function Selfcheck(){
+    var me = false;
+    return function(callback){
+        return function(){
+            if(me) return; 
+            me = true;
+            try{var res = callback.apply(this, arguments); } finally {me= false;}
+            return res;
+        } 
+    }
+}

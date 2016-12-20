@@ -10,7 +10,8 @@ var TENANT_SELECT = 'tselect',
     TENANT_SAVE = 't_save',
     TENANT_SAVING = 't_saving',
     TENANT_HAS_SAVED = 't_has_saved',
-    TENANT_LOADED = 't_loaded';
+    TENANT_LOADED = 't_loaded',
+    TENANT_SELETION = 't_selection';
 
 var MAP_DRAWING_POLYGON = "map_drawing",
     MAP_GEOJSON = 'map_geojson';
@@ -22,7 +23,8 @@ app.factory('actions', function(){
         selectTab: function(tab) { return {type: SELECT_TAB, payload: tab} },
         switchFloor: function(floor) { return {type: SWITCH_FLOOR, payload: floor} },
         editTenant: function(tenant) { return {type: TENANT_EDIT, payload: tenant} },
-        mapGeoJSON: function(json) { return {type:MAP_GEOJSON, payload: json}} 
+        mapGeoJSON: function(json) { return {type:MAP_GEOJSON, payload: json}} ,
+        tenantSelection: function(sel_list) { return {type:TENANT_SELETION, payload: sel_list}}
     };
 })
 
@@ -35,22 +37,27 @@ app.factory('reducers', function(){
                                 selected_point: null,
                                 edited_tenant: null,
                                 edit_point: null,
-                                map_geo_json: null,
+                                edit_geometry: null,
                                 tenant_saving: false };
 
         switch(action.type){
             case SELECT_TAB:
                 return _.extend({}, ui_state, {selected_tab: action.payload});
             case SWITCH_FLOOR:
-                return _.extend({}, ui_state, {selected_floor: action.payload, edited_tenant: null, map_geo_json: null});
+                return _.extend({}, ui_state, {selected_floor: action.payload,
+                                               selected_tenants: [],  
+                                               edited_tenant: null, edit_geometry: null});
             case TENANT_EDIT:
-                return _.extend({}, ui_state, {edited_tenant: action.payload, map_geo_json: null});
+                return _.extend({}, ui_state, {edited_tenant: action.payload, edit_geometry: null});
             case MAP_GEOJSON:
-                return _.extend({}, ui_state, {map_geo_json: action.payload});
+                return _.extend({}, ui_state, {edit_geometry: action.payload});
             case TENANT_SAVING:
                 return _.extend({}, ui_state, {tenant_saving: true});
             case TENANT_HAS_SAVED:
                 return _.extend({}, ui_state, {edited_tenant: null, tenant_saving: false});
+            case TENANT_SELETION:
+                return _.extend({}, ui_state, {selected_tenants: action.payload});
+                
             default:
                 return ui_state;
         }
@@ -68,7 +75,7 @@ app.factory('reducers', function(){
                         return _.extend({}, t, {geom:action.payload.geometry})
                     }
                     return t;
-                })    
+                })  
             default:
                 return tenants_state;
         }

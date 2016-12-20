@@ -45,6 +45,12 @@ app.controller("TabController", function($rootScope, store, actions){
 app.controller("TenantsController", function($scope, store, actions){
     var $apply = applyScope($scope)
     $scope.tenants = [];
+
+    
+    $scope.deleteGeometry = function(){
+        store.dispatch(actions.mapGeoJSON(null));
+    }
+
     $scope.onEdit = function(tenant){
         store.dispatch( actions.editTenant(tenant) )
     };
@@ -58,17 +64,31 @@ app.controller("TenantsController", function($scope, store, actions){
                (tenant.geom.type === "Polygon" ? "Площадь" : "Точка") : "—"
     }
 
-    $scope.noNeedSave = function(){
-        var et = store.state.ui.edited_tenant;
-        var mgs = store.state.ui.map_geo_json;
-        return !et || et.geom === mgs;
+    $scope.isVisible = function(tenant){
+        return _.contains(store.state.ui.selected_tenants, tenant.id);
     }
 
+    $scope.toggleVisibility = function(tenant_id){
+        var selected_list = store.state.ui.selected_tenants;
+        var is_v = _.contains(selected_list, tenant_id);
+        selected_list = is_v ? _.without(selected_list, tenant_id) : _.union(selected_list, [tenant_id]);
+        store.dispatch(actions.tenantSelection(selected_list));
+    }
+    
+
+    $scope.noNeedSave = function(){
+        var et = store.state.ui.edited_tenant;
+        var mgs = store.state.ui.edit_geometry;
+        return !et || _.isEqual(et.geom, mgs);
+    }
+
+    $scope.noGeometry = function() { return !store.state.ui.edit_geometry; }
+
     $scope.onSave = function(){
-        store.dispatch( actions.tenantSave(store.state.ui.edited_tenant.id, store.state.ui.map_geo_json) )
+        store.dispatch( actions.tenantSave(store.state.ui.edited_tenant.id, store.state.ui.edit_geometry) )
     };
 
-    store.on('ui.map_geo_json ui.tenant_saving', function() {
+    store.on('ui.edit_geometry ui.tenant_saving', function() {
         $apply(function(){ $scope.tenant_saving = store.state.ui.tenant_saving }); 
     })
 

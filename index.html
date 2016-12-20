@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/leaflet.css" />
     <link rel="stylesheet" href="css/leaflet.draw.css" />
     <link rel="stylesheet" href="css/w3.css" />
+    <!--<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
     <style type="text/css">
     html,body {font-family: "Roboto", sans-serif}
     .w3-navbar li a {
@@ -56,20 +57,28 @@
     <div class="w3-padding-8" ng-controller="TenantsController" ng-hide="notSelected('tenants_tab') ">
         <table class="w3-table-all w3-hoverable" ng-hide="edited_tenant">
             <tr class="w3-light-grey">
+                <th></th>
                 <th>ID</th>
                 <th>Название</th>
                 <th>Геометрия</th>
             </tr>
             <tbody style="cursor:pointer">
-                <tr ng-repeat="t in tenants" ng-click="onEdit(t)">
+                <tr ng-repeat="t in tenants">
+                    <td><input type="checkbox" ng-checked="isVisible(t)" 
+                                               ng-click="toggleVisibility(t.id)"></td>
                     <td>{{t.id}}</td>
-                    <td>{{t.title}}</td>
+                    <td ng-click="onEdit(t)">{{t.title}}</td>
                     <td class="w3-text-teal w3-center" title="Наличие геометри">{{t.geom ? '✔' : ''}}</td>
                 </tr>
             </tbody>
         </table>
         <div  ng-show="edited_tenant" >
+                   
             <table class="w3-table w3-light-grey">
+                <tr>
+                    <td class="w3-large">Номер:</td>
+                    <td>{{edited_tenant.id}}</td>
+                </tr>
                 <tr>
                     <td class="w3-large">Название:</td>
                     <td>{{edited_tenant.title}}</td>
@@ -84,13 +93,15 @@
                 </tr>
             </table>
             <p>
-                Используйте инструменты на карте для рисования геометрии. 
+                Используйте мышь для рисования геометрии на карте. 
             </p>
-            <div class="w3-row w3-padding-8 w3-right" ng-hide="tenant_saving">
+           
+            <div class="w3-row w3-padding-8 w3-right" >
+                <button class="material-icons w3-btn w3-teal" ng-disabled="noGeometry()" ng-click="deleteGeometry()" title="Удалить геометрию">delete</button>
                 <button class="w3-btn w3-teal" ng-disabled="noNeedSave()" ng-click="onSave()">Сохранить</button>
-                <button class="w3-btn w3-teal" ng-click="closeEdit()">Отмена</button>
+                <button class="w3-btn w3-teal" ng-click="closeEdit()">Закрыть</button>
             </div>
-            <p class="w3-large w3-text-green w3-right-align" ng-show="tenant_saving">Подождите, пожалуйста ...</p>
+            
             
                             
         </div>
