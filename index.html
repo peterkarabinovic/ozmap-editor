@@ -97,12 +97,14 @@
                 Используйте мышь для рисования геометрии на карте. 
             </p>
            
-            <div class="w3-row w3-padding-8 w3-right" >
+            <div class="w3-row w3-padding-8 w3-right" ng-hide="tenant_saving">
                 <button class="material-icons w3-btn w3-teal" ng-disabled="noGeometry()" ng-click="deleteGeometry()" title="Удалить геометрию">delete</button>
                 <button class="w3-btn w3-teal" ng-disabled="noNeedSave()" ng-click="onSave()">Сохранить</button>
                 <button class="w3-btn w3-teal" ng-click="closeEdit()">Закрыть</button>
             </div>
-            
+            <p class="w3-row w3-padding-8 w3-right w3-green" ng-show="tenant_saving">
+                Пожалуйста, подождите ...
+            </p>
             
                             
         </div>
