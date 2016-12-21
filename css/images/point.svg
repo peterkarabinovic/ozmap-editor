@@ -1,0 +1,26 @@
+
+
+<svg xmlns="http://www.w3.org/2000/svg" 
+     width="14" height="14" viewBox="0 0 14 14">
+
+    <style>
+        .distance_point-bg {
+            fill: #808080;
+            stroke: none;
+            fill-opacity: 0.3;
+        }
+        .distance_point-stroke {
+            fill: #ffffff;
+            stroke: #009688;
+            stroke-width: 2;
+            fill-rule: evenodd;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    </style>    
+    
+    <g>
+        <circle class="distance_point-bg" cy="8" cx="8" r="6" />
+        <circle class="distance_point-stroke" cy="6" cx="6" r="5" />
+    </g>
+</svg>

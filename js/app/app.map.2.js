@@ -10,13 +10,12 @@ tenantEditStyle = {
 }
 
 var pointStyle = {
-    radius: 5,
+    radius: 6,
     fillColor: "#FFF",
     color: "#009688",
     weight: 2,
     opacity: 1,
-    fillOpacity: 1,
-    pane: "popupPane"
+    fillOpacity: 0.7
 };
 
 var highlightCircleStyle = {
@@ -28,12 +27,7 @@ var highlightCircleStyle = {
 }
 
 var edgeStyle = {
-    color: '#009688',
-    weight: 2
-}
-var pointStyle2 = {
-    icon: L.icon({iconUrl: "css/images/point.svg", iconSize: [14, 14]}),
-    draggable: true
+    color: '#3f51b5'
 }
 
 app.controller("MapController", function(store, actions){
@@ -73,11 +67,13 @@ app.controller("MapController", function(store, actions){
     var tenantLayer = new L.FeatureGroup();
     var tenantEditLayer = new L.FeatureGroup();
     var pointLayer = new L.FeatureGroup();
+    var pointEditLayer = new L.FeatureGroup();
     var edgeLayer = new L.FeatureGroup();
     map.addLayer(tenantLayer)
        .addLayer(tenantEditLayer)
-       .addLayer(edgeLayer)
-       .addLayer(pointLayer);
+       .addLayer(pointLayer)
+       .addLayer(pointEditLayer)
+       .addLayer(edgeLayer);
 
     var polygonDrawer = new L.Draw.Polygon(map, {
                 guidelineDistance: 10,
@@ -89,7 +85,7 @@ app.controller("MapController", function(store, actions){
         repeatMode: true
     });
 
-    var edgeDrawer = new EdgeDrawer(map, pointLayer);
+    var edgeDrawer = new EdgeDrawer(map, pointLayer, pointEditLayer);
    
     L.drawLocal.draw.handlers.polygon.tooltip = {
         start: 'Кликните на карте для начала рисования.',
@@ -112,17 +108,21 @@ app.controller("MapController", function(store, actions){
     /**********************************************************
        Logic, listeners & actions     
      **********************************************************/
+    store.on('ui.editing_mode', function(){
+
+        switch(store.state.ui.editing_mode){
+            case TENANT_EDIT:
+
+        }
+    });
+        
 
     store.on('ui.editing_mode', function(){
         polygonDrawer.disable();
         pointDrawer.disable();
         edgeDrawer.disable();
-        _.each([tenantLayer, pointLayer, edgeLayer ], function(l){
+        _.each([tenantLayer, pointLayer, pointEditLayer, edgeLayer ], function(l){
             l.off('click', onClick)
-        });
-        _.each(pointLayer.getLayers(), function(ll){
-            _.each(ll.getLayers(), function(l){l.dragging.disable()}); 
-            
         });
 
         switch(store.state.ui.editing_mode){
@@ -138,16 +138,10 @@ app.controller("MapController", function(store, actions){
                 edgeDrawer.enable();
                 break;
             case REMOVING:
-                _.each([pointLayer, edgeLayer], function(l){
+                _.each([pointLayer, pointEditLayer, edgeLayer], function(l){
                     l.on('click', onClick)
                 });
                 break;
-            case MAP_SELECTION:
-                _.each(pointLayer.getLayers(), function(ll){
-                    _.each(ll.getLayers(), function(l){l.dragging.enable()}); 
-                    
-                });
-                
 
             default:
                 tenantLayer.on('click', onClick)
@@ -206,39 +200,29 @@ app.controller("MapController", function(store, actions){
         redrawTenants();    
     });
 
-    function updateLayer(layer, features, options){
-        features = _.clone(features);
-        var ids = _.map(features, _.property('id'))
-        var removes = _.reject(layer.getLayers(), function(l) { 
+    store.on('ui.edit_points', function(){
+        var edit_points = _.clone(store.state.ui.edit_points);
+        var ids = _.map(edit_points, _.property('id'))
+        var removes = _.reject(pointEditLayer.getLayers(), function(l) { 
             var index = ids.indexOf(l.id);
             if(index > -1 ){
                 ids.splice(index,1);
-                features.splice(index,1);
+                edit_points.splice(index,1);
             }
             return index > -1;
         })
-        var appends = _.map(features, function(p){
-            return L.geoJSON(p, options);
-        });
-        map.removeLayer(layer)
-        _.each(removes, function(l){ layer.removeLayer(l); })
-        _.each(appends, function(l){ layer.addLayer(l); })
-        map.addLayer(layer)
-    }
-
-    store.on('graph.edit_points', function(){
-        var options = { 
+        var appends = _.map(edit_points, function(p){
+            return L.geoJSON(p, { 
                 pointToLayer: function (feature, latlng) { 
-                    return L.marker(latlng, pointStyle2).on('dragend', onDragend);
-                }
-            }
-        updateLayer(pointLayer, store.state.graph.edit_points, options);
-        pointLayer.setZIndex(500);
-    });
+                    return L.circleMarker(latlng, pointStyle);
+                }});
+        });
+        map.removeLayer(pointEditLayer)
+        _.each(removes, function(l){ pointEditLayer.removeLayer(l); })
+        _.each(appends, function(l){ pointEditLayer.addLayer(l); })
+        map.addLayer(pointEditLayer)
+    })
 
-    store.on('graph.edit_edges', function(){
-        updateLayer(edgeLayer, store.state.graph.edit_edges, edgeStyle);
-    });
 
     var onEdit = selfcheck(function(e)
     {
@@ -269,11 +253,6 @@ app.controller("MapController", function(store, actions){
         
     }
 
-    var onDragend = function(e){
-        var point = e.target.toGeoJSON();
-        store.dispatch(actions.pointMove(point))
-    }
-
     map.on(L.Draw.Event.CREATED, function (e) {
         var layer = e.layer;
         var geometry = layer.toGeoJSON().geometry;
@@ -281,9 +260,7 @@ app.controller("MapController", function(store, actions){
             case TENANT_EDIT:
                 return store.dispatch(actions.newTenantGeometry(geometry));
             case POINT_ADDING:
-                return store.dispatch(actions.newPoint(geometry));
-            case EDGE_ADDING:
-                return store.dispatch(actions.newEdge(layer.feature));
+                return store.dispatch(actions.newPoint(geometry))
 
         }
     });
@@ -294,54 +271,66 @@ app.controller("MapController", function(store, actions){
 
 });
 
-function EdgeDrawer(map, pointLayer){
+function EdgeDrawer(map, pointLayer1, pointLayer2){
     ed = {};
     
+    var index = null;
     var first_point = null;
     var line = L.polyline([],edgeStyle)
+    var highlightCircle = L.circleMarker([], highlightCircleStyle);
     ed.enable = function(){
         state = 'enable';
+        buildIndex();
         map.on('mousemove', onMove);
-        pointLayer.on('click', onPoint)
+        map.on('zoomend', buildIndex);
+        highlightCircle.on('click', onPoint)
     }
 
     ed.disable = function(){
-        pointLayer.off('click', onPoint);
-        map.removeLayer(line);
+        map.off('mousemove', onMove);
+        map.off('zoomend', buildIndex);
+        highlightCircle.off('click', onPoint);
+        map.removeLayer(line).removeLayer(highlightCircle);
+    }
+
+    function buildIndex(){
+        index = new KdTree(5);
+        _.each([pointLayer1, pointLayer2], function(l) {
+                    _.each(l.getLayers(), function(p){
+                        var feature = p.getLayers()[0].feature;
+                        var lp = map.latLngToLayerPoint(p.getLayers()[0].getLatLng());
+                        index.insert(lp, feature);
+                    }) 
+                });       
     }
 
     function onPoint(e){
         if(!first_point) {
-            first_point = e.layer.feature;
-            var latlng = e.layer.getLatLng();
+            first_point = highlightCircle.feature;
+            var latlng = highlightCircle.getLatLng();
             line.setLatLngs([latlng,latlng]);
             map.addLayer(line); 
-        }
-        else {
-            var point = e.layer.feature;
-            if(_.isEqual(first_point, point)) return;
-            var latlngs = [latlngF(first_point), latlngF(point)];
-            var edge = L.polyline(latlngs);
-            edge.feature = {
-                from_id: first_point.id,
-                to_id: point.id,
-                geometry: geometry = edge.toGeoJSON().geometry
-            }
-            map.removeLayer(line);
-            first_point = null;
-            map.fire(L.Draw.Event.CREATED, {layer:edge});
         }
     }
 
 
 
     function onMove(e){
-
+        var lp = e.layerPoint,
+            r = index.tolerance * map.getZoom(),
+            env = new Envelope(lp.x-r,lp.x+r , lp.y-r,lp.y+r);
+        var nodes = index.query(env);
+        if(_.isEmpty(nodes))
+            map.removeLayer(highlightCircle);
+        else {
+            var feature = nodes[0].data[0]; 
+            var xy = feature.geometry.coordinates;
+            highlightCircle.setLatLng([xy[1], xy[0]]);
+            highlightCircle.feature = feature;
+            map.addLayer(highlightCircle);
+        }
         if(first_point) {
             var latlngs = line.getLatLngs();
-            e.latlng.lat += e.latlng.lat > first_point.geometry.coordinates[1] ? -5 :  5; 
-            e.latlng.lng += e.latlng.lng > first_point.geometry.coordinates[0] ? -5 :  5; 
-            // e.latlng.lng = e.latlng.lng - 10; 
             latlngs[1] = e.latlng;
             line.setLatLngs(latlngs);
         }
@@ -350,68 +339,178 @@ function EdgeDrawer(map, pointLayer){
     return ed;
 }
 
-function latlngF(feature){
-    return L.latLng(feature.geometry.coordinates[1],
-                    feature.geometry.coordinates[0]);
-}
+
 
 /**
- *  polyline with arrows
- * */
-L.LeafletPolyline = L.Polyline
-L.Polyline = L.Polyline.extend({
+ *  Реализация KdTree- индекса
+ *  взято из JTS https://github.com/bjornharrtell/jsts
+ *
+ *  Только я не все взял
+ *      я не взял geom.Coordinate, а просто заменил его {x:x,y:y}
+ *      я взял только необходимое из  Envelope
+ */
 
-   
-    initialize: function (latlngs, options){
-        L.LeafletPolyline.prototype.initialize.call(this, latlngs, options);
-    },
-    
-    onRemove: function (map) {
-        L.LeafletPolyline.prototype.onRemove.call(this,map);
-    },
-    
-    _updatePath: function () {
-        if (!this._map) 
-            return;
-        L.LeafletPolyline.prototype._updatePath.call(this);
-        L.Arrows.add(this);
+
+//
+// Envelope 
+//
+Envelope = function(x1,x2,y1,y2) 
+{
+  if (x1 < x2) {
+       this.minx = x1;
+       this.maxx = x2;
+  } else {
+       this.minx = x2;
+       this.maxx = x1;
+  }
+  if (y1 < y2) {
+       this.miny = y1;
+       this.maxy = y2;
+  } else {
+       this.miny = y2;
+       this.maxy = y1;
+  }
+};
+
+Envelope.prototype = {
+    contains: function(p){
+        if(this.maxx < this.minx) return false;
+        return p.x >= this.minx && p.x <= this.maxx && p.y >= this.miny && p.y <= this.maxy;
     }
-});
+}
 
 
-L.Arrows = {
 
-    arrowoptions: {
-        clickable: false,
-        stroke: false,
-    },
-    
-    $marker: null,
-    
-    init: function (line) {
-        if(this.$marker) return;
-        this.$marker = L.SVG.create('marker');
-        line._renderer._container.appendChild(this.$marker);
-        var attr = _.bind(this.$marker.setAttribute, this.$marker);
-            attr("id", 'marker_route');
-            attr("refX", 0);
-            attr("refY", 0);
-            attr("orient", "auto");
-            this.$marker.style.overflow = "visible";
-        var $path = L.SVG.create( 'path');
-        this.$marker.appendChild($path);
-            attr = _.bind($path.setAttribute, $path);
-            attr("d", "M 0,0 5,-5 -12,0 5,5 0,0 z");
-            attr("transform", "matrix(-0.4,0,0,-0.4,-4,0)");
-            attr("stroke-width", 8);
-            attr("fill",'#009688');
-            attr('stroke', 'none');
-    },
-    
-    add: function(line){
-        this.init(line);
-        line._path.setAttribute('marker-end','url(#marker_route)');
-        return;
+//
+// KdNode 
+//
+KdNode = function(p, data) {
+  this.left = null;
+  this.right = null;
+  this.p = p;
+  this.data = [data];
+};
+KdNode.prototype.getCoordinate = function() {
+  return this.p;
+};
+
+
+
+
+KdTree = function(tolerance) {
+  var tol = 0.0;
+  if (tolerance !== undefined) {
+    tol = tolerance;
+  }
+
+  this.root = null;
+  this.last = null;
+  this.numberOfNodes = 0;
+  this.tolerance = tol;
+};
+
+
+/**
+* Inserts a new point in the kd-tree.
+*
+* Will call correct *insert function depending on arguments
+*
+* @return {KdNode} The kd-node containing the point.
+*/
+KdTree.prototype.insert = function(p, data) 
+{
+  if (this.root === null) {
+    this.root = new KdNode(p, data);
+    return this.root;
+  }
+
+  var currentNode = this.root, leafNode = this.root, isOddLevel = true, isLessThan = true;
+
+  // traverse the tree first cutting the plane left-right the top-bottom
+    while (currentNode !== this.last) {
+        // test if point is already a node
+        if (currentNode !== null) {
+            var isInTolerance = this.distance(p, currentNode.getCoordinate()) <= this.tolerance;
+
+            // check if point is already in tree (up to tolerance) and if so simply
+            // return existing node
+            if (isInTolerance) {
+                currentNode.data.push(data);
+                return currentNode;
+            }
+        }
+        if (isOddLevel) {
+            isLessThan = p.x < currentNode.p.x;
+        } else {
+            isLessThan = p.y < currentNode.p.y;
+        }
+        leafNode = currentNode;
+        if (isLessThan) {
+            currentNode = currentNode.left;
+        } else {
+            currentNode = currentNode.right;
+        }
+
+        isOddLevel = !isOddLevel;
     }
+
+  // no node found, add new leaf node to tree
+  this.numberOfNodes = this.numberOfNodes + 1;
+  var node = new KdNode(p, data);
+  node.left = this.last;
+  node.right = this.last;
+  if (isLessThan) {
+    leafNode.left = node;
+  } else {
+    leafNode.right = node;
+  }
+  return node;
+};
+
+KdTree.prototype.distance = function(p1,p2) {
+    var dx = p1.x - p2.x;
+    var dy = p1.y - p2.y;
+    return Math.sqrt(dx * dx + dy * dy);
+};
+
+
+KdTree.prototype.queryNode = function(currentNode,
+    bottomNode, queryEnv, odd, result) {
+  if (currentNode === bottomNode) {
+    return;
+  }
+
+  var min, max, discriminant;
+  if (odd) {
+    min = queryEnv.minx;
+    max = queryEnv.maxx;
+    discriminant = currentNode.p.x;
+  } else {
+    min = queryEnv.miny;
+    max = queryEnv.maxy;
+    discriminant = currentNode.p.y;
+  }
+
+  var searchLeft = min < discriminant;
+  var searchRight = discriminant <= max;
+
+  if (searchLeft) {
+    this.queryNode(currentNode.left, bottomNode, queryEnv, !odd, result);
+  }
+
+  if (queryEnv.contains(currentNode.getCoordinate())) {
+    result.push(currentNode);
+  }
+
+  if (searchRight) {
+    this.queryNode(currentNode.right, bottomNode, queryEnv, !odd, result);
+  }
+};
+
+
+KdTree.prototype.query = function(queryEnv) {
+  var result = [];
+  this.queryNode(this.root, this.last, queryEnv, true, result);
+  return result;
 };
 

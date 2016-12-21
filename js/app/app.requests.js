@@ -6,17 +6,22 @@ app.factory('requests', function($http, actions){
         switch(action.type) {
             case TENANT_SAVE:
                 store.next({type: TENANT_SAVING});
-                $http.post('tenants/' + action.payload.id, action.payload.geometry)
+                var tenant = store.state.ui.edit_tenant;
+                $http.post('tenants/' + tenant.id, tenant.geometry)
                      .then(function(){
-                         store.next({type: TENANT_HAS_SAVED, payload: action.payload});
+                         store.next({type: TENANT_HAS_SAVED, payload: tenant});
                      });
                 return;
             case INIT_ACTION: 
                 $http.get('tenants/').then(function(d){
-                    _.each(d.data, function(t, id){
-                        t.id = id;
+                    var tenants = _.mapObject(d.data, function(t, id){
+                        t.geometry = t.geom;
+                        delete t.geom;
+                        t.id = id; 
+                        t.type = 'Feature';
+                        return t;
                     });
-                    store.next( actions.tenatsLoaded(d.data));
+                    store.next( actions.tenatsLoaded(tenants));
                 });
         }
         store.next(action);

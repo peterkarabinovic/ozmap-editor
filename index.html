@@ -54,8 +54,9 @@
 
 
 <div id="cards" class="w3-container">
+
     <div class="w3-padding-8" ng-controller="TenantsController as ctrl" ng-hide="notSelected('tenants_tab') ">
-        <table class="w3-table-all w3-hoverable" ng-hide="edited_tenant">
+        <table class="w3-table-all w3-hoverable" ng-hide="edit_tenant">
             <tr class="w3-light-grey">
                 <th></th>
                 <th>ID</th>
@@ -64,53 +65,86 @@
             </tr>
             <tbody style="cursor:pointer">
                 <tr ng-repeat="t in tenants track by t.id">
-                    <td><input type="checkbox" ng-show="t.geom"
+                    <td><input type="checkbox" ng-show="t.geometry"
                                                ng-checked="isVisible(t)" 
                                                ng-click="toggleVisibility(t.id)"></td>
                     <td>{{t.id}}</td>
                     <td ng-click="onEdit(t)">{{t.title}}</td>
-                    <td class="w3-text-teal w3-center" title="Наличие геометри">{{t.geom ? '✔' : ''}}</td>
+                    <td class="w3-text-teal w3-center" title="Наличие геометри">{{t.geometry ? '✔' : ''}}</td>
                 </tr>
             </tbody>
         </table>
-        <div  ng-show="edited_tenant" >
+        <div  ng-show="edit_tenant" >
+            <p>
+                Используйте мышь для рисования геометрии на карте. 
+            </p>            
+            <div class="w3-row w3-padding-8 w3-right" ng-hide="tenant_saving">
+                <button class="w3-btn-floating w3-teal" ng-disabled="noGeometry()" ng-click="deleteGeometry()" title="Удалить геометрию">-</button>
+                <button class="w3-btn w3-teal" ng-disabled="noNeedSave()" ng-click="onSave()">Сохранить</button>
+                <button class="w3-btn w3-teal" ng-click="closeEdit()">Отменить</button>
+            </div>
+            <p class="w3-row w3-padding-8 w3-right w3-text-green" ng-show="tenant_saving">
+                Пожалуйста, подождите ...
+            </p>            
                    
             <table class="w3-table w3-light-grey">
                 <tr>
                     <td class="w3-large">Номер:</td>
-                    <td>{{edited_tenant.id}}</td>
+                    <td>{{edit_tenant.id}}</td>
                 </tr>
                 <tr>
                     <td class="w3-large">Название:</td>
-                    <td>{{edited_tenant.title}}</td>
+                    <td>{{edit_tenant.title}}</td>
                 </tr>
                 <tr>
                     <td class="w3-large">Этаж:</td>
-                    <td>{{edited_tenant.floor}}</td>
+                    <td>{{edit_tenant.floor}}</td>
                 </tr>
                 <tr>
                      <td class="w3-large">Геометрия:</td>
-                     <td>{{geomType(edited_tenant)}}</td>
+                     <td>{{geomType(edit_tenant)}}</td>
                 </tr>
             </table>
-            <p>
-                Используйте мышь для рисования геометрии на карте. 
-            </p>
+
            
-            <div class="w3-row w3-padding-8 w3-right" ng-hide="tenant_saving">
-                <button class="material-icons w3-btn w3-teal" ng-disabled="noGeometry()" ng-click="deleteGeometry()" title="Удалить геометрию">delete</button>
-                <button class="w3-btn w3-teal" ng-disabled="noNeedSave()" ng-click="onSave()">Сохранить</button>
-                <button class="w3-btn w3-teal" ng-click="closeEdit()">Закрыть</button>
-            </div>
-            <p class="w3-row w3-padding-8 w3-right w3-text-green" ng-show="tenant_saving">
-                Пожалуйста, подождите ...
-            </p>
+
             
                             
         </div>
     </div>
-    <div ng-controller="GraphController" ng-hide="notSelected('graph_tab')"></div>
+    <div class="w3-padding-8" ng-controller="GraphController as ctrl" ng-hide="notSelected('graph_tab')">
+            <div class="w3-container" ng-hide="edit_point">
+                <div class="w3-row w3-padding-8">
+                    <button class="w3-btn w3-teal" 
+                            ng-class="{'w3-white': isMode('MAP_SELECTION')}"
+                            ng-click="mode('MAP_SELECTION')" ng-disabled="noFeatures()">select</button>
+                    <button class="w3-btn w3-teal"
+                            ng-class="{'w3-white': isMode('POINT_ADDING')}" 
+                            ng-click="mode('POINT_ADDING')" >+ точка</button>
+                    <button class="w3-btn w3-teal" 
+                            ng-class="{'w3-white': isMode('EDGE_ADDING')}"
+                            ng-click="mode('EDGE_ADDING')" ng-disabled="lessThen2()">+ ребро</button>
+                    <button class="w3-btn w3-teal" 
+                            ng-class="{'w3-white': isMode('REMOVING')}"
+                            ng-click="mode('REMOVING')" ng-disabled="noFeatures()">x</button>
+                </div>
+                <table class="w3-table-all w3-hoverable w3-light-grey">
+                    <tr>
+                        <th>ID</th>
+                        <th>Тип</th>
+                    </tr>
+                    <tr ng-repeat="p in points track by p.id" >
+                        <td ng-class="{'w3-text-indigo': p.edit}">{{p.id}}</td>
+                        <td class="w3-left-align">{{p.point_type}}</td>
+                    </tr>
+                </table>                
+            </div>
+            
+
+    </div>
 </div>
+
+<!--- MAP -->
 <div id="map" class="w3-light-grey" ng-controller="MapController">
 </div>   
 
