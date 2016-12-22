@@ -124,15 +124,19 @@
             <div class="" ng-hide="edit_point">
                 <div class="w3-row w3-padding-8" ng-hide="graph_saving">
                     <button class="w3-btn w3-teal" 
+                            title="Переместить/Выбрать точку на карте"
                             ng-class="{'w3-white': isMode('MAP_SELECTION')}"
                             ng-click="mode('MAP_SELECTION')" ng-disabled="noFeatures()">select</button>
                     <button class="w3-btn w3-teal"
+                            title="Добавить точку"
                             ng-class="{'w3-white': isMode('POINT_ADDING')}" 
                             ng-click="mode('POINT_ADDING')" >+ точка</button>
                     <button class="w3-btn w3-teal" 
+                            title="Добавить ребро"
                             ng-class="{'w3-white': isMode('EDGE_ADDING')}"
                             ng-click="mode('EDGE_ADDING')" ng-disabled="lessThen2()">+ ребро</button>
                     <button class="w3-btn w3-teal" 
+                            title="Удалить на карте точку/ребро"
                             ng-class="{'w3-white': isMode('REMOVING')}"
                             ng-click="mode('REMOVING')" ng-disabled="noFeatures()">x</button>
                 </div>
