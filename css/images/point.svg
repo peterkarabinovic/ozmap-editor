@@ -1,7 +1,7 @@
 
 
 <svg xmlns="http://www.w3.org/2000/svg" 
-     width="14" height="14" viewBox="0 0 14 14">
+     width="15" height="15" viewBox="0 0 15 15">
 
     <style>
         .distance_point-bg {
@@ -20,7 +20,7 @@
     </style>    
     
     <g>
-        <circle class="distance_point-bg" cy="8" cx="8" r="6" />
-        <circle class="distance_point-stroke" cy="6" cx="6" r="5" />
+        <circle class="distance_point-bg" cy="9" cx="9" r="6" />
+        <circle class="distance_point-stroke" cy="7" cx="7" r="5" />
     </g>
 </svg>

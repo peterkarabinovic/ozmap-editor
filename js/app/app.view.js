@@ -125,11 +125,17 @@ app.controller("TenantsController", function($scope, store, actions){
 });
 
 app.controller("GraphController", function($scope, store, actions){
+    // $scope.types = [ {id:'path', name: "Проход"} , {id:'entry', name: "Точка входа"} , { id: 'escalator', name: "Экскалатор" } ]
+    $scope.types = { "path": {id:'path', name: "Проход"} , "entry": {id:'entry', name: "Точка входа"} , "escalator": { id: 'escalator', name: "Экскалатор" } }
     var $update = _.partial(applyScope($scope), function() {
         var floor = store.state.ui.selected_floor;
         $scope.points = _.filter( store.state.graph.edit_points, function(p){ return p.floor === floor});
         $scope.editing_mode = store.state.ui.editing_mode;
         $scope.graph_saving = store.state.ui.graph_saving;
+        $scope.edit_point = null;
+        if(store.state.ui.edit_point) 
+            $scope.edit_point = _.pick(store.state.ui.edit_point, function(val, key){ return key !== 'geometry' });
+        
     });
 
     $scope.noChanges = function(){
@@ -146,11 +152,41 @@ app.controller("GraphController", function($scope, store, actions){
         store.dispatch(actions.cancelGraphChanges());
     }
 
+    $scope.onEdit = function(point){
+        store.dispatch(actions.editPoint(point));
+    }
+
+    $scope.tenants = function(point){
+        var floor = store.state.ui.selected_floor;
+        var tenants = _.filter(store.state.tenants, function(it) { return it.floor == floor} );
+        return tenants
+    }
+
+    $scope.onApply = function(point){
+        var er = function(msg) { store.dispatch(actions.error(msg))};
+        if(point.point_type === 'escalator') {
+            if(!point.escalator_id) return er("Не установлен номер экскалатора");
+            if(!point.escalator_floor) return er("Не установлен этаж экскалатора");
+            if(point.escalator_floor === point.floor) return er("Этаж экскалатора не должен совпадать с этажом точки");
+
+        }
+        if(point.point_type === 'entry'){
+            if(!point.tenant_id) return er("Не установлен арендатор");
+        }
+        er(null);
+        store.dispatch(actions.updatePointAttrs(point));
+    }
+
+    $scope.noPropertyChanged = function(){
+        var o2 = _.pick(store.state.ui.edit_point, function(val, key){ return key !== 'geometry' });
+        return _.isEqual($scope.edit_point,o2);
+    };
+
     $scope.mode = function(mode) {  store.dispatch({type: mode}); }
     $scope.isMode = function(mode) { return $scope.editing_mode === mode;}
     $scope.noFeatures = function() { return $scope.points.length === 0; }
     $scope.lessThen2 = function(){ return $scope.points.length < 2; }
     
-    store.on('ui.editing_mode graph.edit_points graph.edit_edges ui.graph_saving', $update);
+    store.on('ui.editing_mode graph.edit_points graph.edit_edges ui.graph_saving ui.edit_point', $update);
     $update();
 });

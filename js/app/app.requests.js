@@ -7,13 +7,11 @@ app.factory('requests', function($http, actions){
             case TENANT_SAVE:
                 store.next({type: TENANT_SAVING});
                 var tenant = store.state.ui.edit_tenant;
-                $http.post('tenants/' + tenant.id, tenant.geometry)
-                     .success(function(){
+                $http.post('tenants/' + tenant.id, tenant.geometry).then(function(){
                          store.next({type: TENANT_HAS_SAVED, payload: tenant});
-                     })
-                     .error(function(msg){
+                     },function(msg){
                          store.next(actions.error(msg))
-                     });
+                     } );
                 return;
 
             case GRAPH_SAVE:
@@ -34,9 +32,9 @@ app.factory('requests', function($http, actions){
                     memo[edge.from_id] = list;
                     return memo;
                 },{});
-                $http.post('graph/', graph).success(function(){
+                $http.post('graph/', graph).then(function(){
                          store.next({type: GRAPH_HAS_SAVED});
-                     }).error(function(msg){
+                     }, function(msg){
                          store.next(actions.error(msg))
                      });
                 break;

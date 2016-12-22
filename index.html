@@ -58,7 +58,8 @@
         <span class="w3-closebtn" ng-click="close()">x</span>
         <p>{{error}}</p>
     </div> 
-    <div class="w3-padding-8" ng-controller="TenantsController as ctrl" ng-hide="notSelected('tenants_tab') ">
+    <div ng-controller="TenantsController as ctrl" ng-hide="notSelected('tenants_tab') " style="margin-top: 8px">
+
         <table class="w3-table-all w3-hoverable" ng-hide="edit_tenant">
             <tr class="w3-light-grey">
                 <th></th>
@@ -77,27 +78,12 @@
                 </tr>
             </tbody>
         </table>
-        <div  ng-show="edit_tenant" >
-            <p>
-                Используйте мышь для рисования геометрии на карте. 
-            </p>            
-            <div class="w3-row w3-padding-8 w3-right" ng-hide="tenant_saving">
-                <button class="w3-btn-floating w3-teal" ng-disabled="noGeometry()" ng-click="deleteGeometry()" title="Удалить геометрию">-</button>
-                <button class="w3-btn w3-teal" ng-disabled="noNeedSave()" ng-click="onSave()">Сохранить</button>
-                <button class="w3-btn w3-teal" ng-click="closeEdit()">Отменить</button>
-            </div>
-            <p class="w3-row w3-padding-8 w3-right w3-text-green" ng-show="tenant_saving">
-                Пожалуйста, подождите ...
-            </p>            
-                   
+        <div  ng-show="edit_tenant" class="w3-container w3-card-4">
+            <h3>{{edit_tenant.title}}</h3>       
             <table class="w3-table w3-light-grey">
                 <tr>
-                    <td class="w3-large">Номер:</td>
+                    <td class="w3-large">ID:</td>
                     <td>{{edit_tenant.id}}</td>
-                </tr>
-                <tr>
-                    <td class="w3-large">Название:</td>
-                    <td>{{edit_tenant.title}}</td>
                 </tr>
                 <tr>
                     <td class="w3-large">Этаж:</td>
@@ -107,15 +93,22 @@
                      <td class="w3-large">Геометрия:</td>
                      <td>{{geomType(edit_tenant)}}</td>
                 </tr>
-            </table>
+            </table>      
+            <p>
+                Используйте мышь для рисования геометрии на карте. 
+            </p>            
 
-           
-
-            
-                            
+            <div class="w3-group w3-right-align" ng-hide="tenant_saving">      
+                <button class="w3-btn-floating w3-teal" ng-disabled="noGeometry()" ng-click="deleteGeometry()" title="Удалить геометрию">-</button>
+                <button class="w3-btn w3-teal" ng-disabled="noNeedSave()" ng-click="onSave()">Сохранить</button>
+                <button class="w3-btn w3-teal" ng-click="closeEdit()">Отменить</button>
+            </div>                            
+            <p class="w3-row w3-padding-8 w3-right w3-text-green" ng-show="tenant_saving">
+                Пожалуйста, подождите ...
+            </p>            
         </div>
     </div>
-    <div class="w3-padding-8" ng-controller="GraphController as ctrl" ng-hide="notSelected('graph_tab')">
+    <div class="" ng-controller="GraphController as ctrl" ng-hide="notSelected('graph_tab')">
             <div class="w3-container">
                 <div class="w3-row w3-padding-8 w3-right" ng-hide="graph_saving">
                     <button class="w3-btn w3-teal" ng-disabled="noChanges()" ng-click="onSave()">Сохранить</button>
@@ -128,7 +121,7 @@
                 Пожалуйста, подождите ...
             </p>            
 
-            <div class="w3-container" ng-hide="edit_point">
+            <div class="" ng-hide="edit_point">
                 <div class="w3-row w3-padding-8" ng-hide="graph_saving">
                     <button class="w3-btn w3-teal" 
                             ng-class="{'w3-white': isMode('MAP_SELECTION')}"
@@ -148,16 +141,70 @@
                         <th>ID</th>
                         <th>Тип</th>
                     </tr>
-                    <tr ng-repeat="p in points track by p.id" >
-                        <td ng-class="{'w3-text-indigo': p.edit}">{{p.id}}</td>
-                        <td class="w3-left-align">{{p.point_type}}</td>
-                    </tr>
+                    <tbody style="cursor:pointer">
+                        <tr ng-repeat="p in points track by p.id" ng-click="onEdit(p)">
+                            <td ng-class="{'w3-text-indigo': p.edit}">{{p.id}}</td>
+                            <td class="w3-left-align">{{types[p.point_type].name}}</td>
+                        </tr>
+                    </tbody>
                 </table>                
             </div>
             
 
+            <div class="" ng-show="edit_point">
+
+                <div class="w3-container w3-card-4">
+                    <h3>Точка № {{edit_point.id}}</h3>
+
+                    <table class="w3-table">
+                        <tr>
+                            <td>Тип</td>
+                            <td>
+                                <select class="w3-select" ng-model="edit_point.point_type"> 
+                                <option ng-repeat="option in types" ng-value="option.id">{{option.name}}</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr ng-show="edit_point.point_type == 'escalator'">
+                            <td>Номер эксколатора</td>
+                            <td>
+                                 <input class="w3-input" type="number" min="1" ng-model="edit_point.escalator_id">
+                            </td>
+                        </tr>
+                        <tr ng-show="edit_point.point_type == 'escalator'">
+                            <td>На этаж</td>
+                            <td>
+                                 <input class="w3-input" type="number" max="3" min="1" ng-model="edit_point.escalator_floor">
+                            </td>
+                        </tr>
+                        <tr ng-show="edit_point.point_type == 'lift'">
+                            <td>Номер лифта</td>
+                            <td>
+                                 <input class="w3-input" type="number" min="1" >
+                            </td>
+                        </tr>
+                        <tr ng-show="edit_point.point_type == 'entry'">
+                            <td>Арендатор</td>
+                            <td>
+                                 <select class="w3-select" ng-model="edit_point.tenant_id">
+                                     <option ng-repeat="option in tenants(edit_point)" ng-value="option.id">{{option.title}}</option>
+                                 </select>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="w3-group w3-right-align">      
+                        <button class="w3-btn w3-teal" ng-click="onApply(edit_point)" ng-disabled="noPropertyChanged()">Приминить</button>
+                        <button class="w3-btn w3-teal" ng-click="onEdit(null)">Закрыть</button>
+                    </div>
+                </div>
+                
+            </div>
+
     </div>
 </div>
+
+
 
 <!--- MAP -->
 <div id="map" class="w3-light-grey" ng-controller="MapController">
@@ -171,7 +218,7 @@
     </p>
 </div>
 
-<script src="js/lib/angular-1.2.16.js"></script>
+<script src="js/lib/angular.min.js"></script>
 <script src="js/lib/leaflet-src.js"></script>
 <script src="js/lib/leaflet.draw-src.js"></script>
 <script src="js/lib/underscore-1.8.3.js"></script>

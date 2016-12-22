@@ -9,30 +9,22 @@ tenantEditStyle = {
     color: '#3f51b5'
 }
 
-var pointStyle = {
-    radius: 5,
-    fillColor: "#FFF",
-    color: "#009688",
-    weight: 2,
-    opacity: 1,
-    fillOpacity: 1,
-    pane: "popupPane"
-};
-
-var highlightCircleStyle = {
+var editPointStyle = {
     radius: 8,
     fillColor: "red",
-    color: "red",
-    weight: 0,
-    fillOpacity: 0.5    
-}
+    color: "white",
+    weight: 2,
+    opacity: 1,
+    fillOpacity:1,
+    pane: "popupPane"
+};
 
 var edgeStyle = {
     color: '#009688',
     weight: 2
 }
 var pointStyle2 = {
-    icon: L.icon({iconUrl: "css/images/point.svg", iconSize: [14, 14]}),
+    icon: L.icon({iconUrl: "css/images/point.svg", iconSize: [15, 15]}),
     draggable: true
 }
 
@@ -74,6 +66,7 @@ app.controller("MapController", function(store, actions){
     var tenantEditLayer = new L.FeatureGroup();
     var pointLayer = new L.FeatureGroup();
     var edgeLayer = new L.FeatureGroup();
+    var editPointMarker = L.circleMarker([], editPointStyle)
     map.addLayer(tenantLayer)
        .addLayer(tenantEditLayer)
        .addLayer(edgeLayer)
@@ -184,6 +177,14 @@ app.controller("MapController", function(store, actions){
         }
     }));
 
+    store.on("ui.edit_point", function(e){
+        var edit_point = e.new_state;
+        if(edit_point) 
+            editPointMarker.setLatLng(latlngF(edit_point)).addTo(map);
+        else
+            map.removeLayer(editPointMarker);
+    });
+
     var redrawTenants = function(){
         var selected_ids = _.clone(store.state.ui.selected_tenants);
         
@@ -276,10 +277,11 @@ app.controller("MapController", function(store, actions){
 
     var onClick = function(e){
         var feature = e.layer.feature;
+        var geo_type = feature.geometry.type;
+        
         switch(store.state.ui.editing_mode){
             case REMOVING:
-                var is_point = _.isEqual("Point", feature.geometry.type);
-                if(is_point)
+                if(geo_type == "Point")
                     store.dispatch(actions.removePoint(feature));
                 else 
                     store.dispatch(actions.removeEdge(feature));
@@ -288,7 +290,10 @@ app.controller("MapController", function(store, actions){
             case MAP_SELECTION:
                 break;
             default:
-                store.dispatch( actions.editTenant(feature) )
+                if(geo_type === "Polygon")
+                    store.dispatch( actions.editTenant(feature) )
+                else if(geo_type == "Point")
+                    store.dispatch( actions.editPoint(feature) )
         }
         
     }

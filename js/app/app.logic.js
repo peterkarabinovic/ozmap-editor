@@ -27,7 +27,9 @@ var GRAPH_LOADED = "graph_loaded",
     GRAPH_SAVE = 'g_save',
     GRAPH_SAVING = "g_saving",
     GRAPH_HAS_SAVED = "g_has_saved",
-    GRAPH_CANCEL = "g_cancel"
+    GRAPH_CANCEL = "g_cancel",
+    EDIT_POINT = "p_edit",
+    POINT_UPDATE_ATTRIBUTES = "p_update_attr"
 
 
 var MAP_DRAWING_POLYGON = "map_drawing",
@@ -50,7 +52,9 @@ app.factory('actions', function(){
         saveGraph: function() { return {type: GRAPH_SAVE} },
         cancelGraphChanges: function() { return {type: GRAPH_CANCEL}},
         graphLoaded: function(graph) { return { type: GRAPH_LOADED, payload: graph } },
-        error: function(er) { return {type: ERROR, payload: er}}
+        error: function(er) { return {type: ERROR, payload: er}},
+        editPoint: function(point) { return{ type: EDIT_POINT, payload: point} },
+        updatePointAttrs: function(point) { return {type: POINT_UPDATE_ATTRIBUTES, payload: point }} 
     };
 })
 
@@ -78,7 +82,8 @@ app.factory('reducers', function(){
                                 editing_mode: null,
                                 tenant_saving: false,
                                 graph_saving: false,
-                                error: null };
+                                error: null,
+                                edit_point: null,   };
 
         switch(action.type)
         {
@@ -90,7 +95,8 @@ app.factory('reducers', function(){
             case SWITCH_FLOOR:
                 return _.extend({}, ui_state, {selected_floor: action.payload,
                                                selected_tenants: [],  
-                                               edit_tenant: null,   
+                                               edit_tenant: null, 
+                                               edit_point: null,                                                 
                                                editing_mode: null});
             case ERROR:
                 return _.extend({}, ui_state, {error: action.payload, tenant_saving: false, graph_saving: false });
@@ -122,6 +128,9 @@ app.factory('reducers', function(){
                 return _.extend({}, ui_state, {editing_mode: EDGE_ADDING});
             case MAP_SELECTION:
                 return _.extend({}, ui_state, {editing_mode: MAP_SELECTION});
+
+            case EDIT_POINT:
+                return _.extend({}, ui_state, {edit_point: action.payload});
             default:
                 return ui_state;
         }
@@ -231,9 +240,29 @@ app.factory('reducers', function(){
                 state.graph =  _.extend({}, state.graph, {edit_points: edit_points});
                 break;
             case POINT_REMOVE:
-                if(!state.graph.edit_points.length)
+                if(_.isEmpty(state.graph.edit_points))
                     state.ui = _.extend({}, state.ui, {editing_mode:null} )
                 break;
+            case POINT_UPDATE_ATTRIBUTES:
+                var point = action.payload;
+                var epoint = state.graph.edit_points[point.id];
+                if(point.point_type === 'escalator') {
+                    var properties = _.pick(point, function(_,key) { return key.startsWith('escalator') });
+                    point = _.extend({}, epoint, {point_type: point.point_type}, properties);
+                }
+                else if(point.point_type === 'entry') {
+                    var properties = _.pick(point, function(_,key) { return key.startsWith('tenant') });
+                    point = _.extend({}, epoint, {point_type: point.point_type}, properties);
+                }
+                else if(point.point_type === 'path') {
+                    var properties = _.pick(point, function(_,key) { return !key.startsWith('tenant') &&  !key.startsWith('escalator')  });
+                    point = _.extend({}, epoint, {point_type: point.point_type}, properties);
+                }
+                var edit_points = _.extend({}, state.graph.edit_points, _.object([ [point.id, point] ]) );
+                state.graph =  _.extend({}, state.graph, {edit_points: edit_points});
+                state.ui = _.extend({}, state.ui, {edit_point: point});
+                break;
+
         }
         return state;
     }
