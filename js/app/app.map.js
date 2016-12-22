@@ -258,7 +258,11 @@ app.controller("MapController", function(store, actions){
 
     store.on('graph.edit_edges', function(){
         updateLayer(edgeLayer, store.state.graph.edit_edges, edgeStyle);
+        _.each(edgeLayer.getLayers(), function(l){
+            L.Arrows.add(l.getLayers()[0]);
+        })
     });
+
 
     var onEdit = selfcheck(function(e)
     {
@@ -374,29 +378,6 @@ function latlngF(feature){
     return L.latLng(feature.geometry.coordinates[1],
                     feature.geometry.coordinates[0]);
 }
-
-/**
- *  polyline with arrows
- * */
-L.LeafletPolyline = L.Polyline
-L.Polyline = L.Polyline.extend({
-
-   
-    initialize: function (latlngs, options){
-        L.LeafletPolyline.prototype.initialize.call(this, latlngs, options);
-    },
-    
-    onRemove: function (map) {
-        L.LeafletPolyline.prototype.onRemove.call(this,map);
-    },
-    
-    _updatePath: function () {
-        if (!this._map) 
-            return;
-        L.LeafletPolyline.prototype._updatePath.call(this);
-        L.Arrows.add(this);
-    }
-});
 
 
 L.Arrows = {

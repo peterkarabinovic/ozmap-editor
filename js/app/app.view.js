@@ -20,6 +20,21 @@ app.controller("FloorsController", function($scope, store, actions){
     $update()
 });
 
+app.controller("ErrorController", function($scope, store, actions){
+    var $update = _.partial(applyScope($scope), function() {
+        $scope.error = store.state.ui.error;
+    }) 
+    
+    $scope.close = function(floor){
+        store.dispatch( actions.error(null) );
+    }
+
+    store.on('ui.error',  $update)
+    $update()
+});
+
+
+
 app.controller("TabController", function($rootScope, store, actions){
     var $update = _.partial(applyScope($rootScope), function() {
         $rootScope.selected_tab = store.state.ui.selected_tab;
@@ -111,16 +126,31 @@ app.controller("TenantsController", function($scope, store, actions){
 
 app.controller("GraphController", function($scope, store, actions){
     var $update = _.partial(applyScope($scope), function() {
-        var floor = store.state.ui.floor;
+        var floor = store.state.ui.selected_floor;
         $scope.points = _.filter( store.state.graph.edit_points, function(p){ return p.floor === floor});
         $scope.editing_mode = store.state.ui.editing_mode;
-    })   
+        $scope.graph_saving = store.state.ui.graph_saving;
+    });
+
+    $scope.noChanges = function(){
+        var graph = store.state.graph;
+        return _.isEqual(graph.points, graph.edit_points) && 
+               _.isEqual(graph.edges, graph.edit_edges) 
+    }
+
+    $scope.onSave = function(){
+        store.dispatch(actions.saveGraph());
+    }
+
+    $scope.onCancel = function(){
+        store.dispatch(actions.cancelGraphChanges());
+    }
 
     $scope.mode = function(mode) {  store.dispatch({type: mode}); }
     $scope.isMode = function(mode) { return $scope.editing_mode === mode;}
     $scope.noFeatures = function() { return $scope.points.length === 0; }
     $scope.lessThen2 = function(){ return $scope.points.length < 2; }
     
-    store.on('ui.editing_mode graph.edit_points graph.edit_edges', $update);
+    store.on('ui.editing_mode graph.edit_points graph.edit_edges ui.graph_saving', $update);
     $update();
 });

@@ -16,10 +16,15 @@ if not os.path.exists(tenants_json):
     f = os.path.join('.', 'data', 'tenats.txt')
     with codecs.open(f, 'r', "utf-8") as file:
         pairs = [ line.split('-') for line in file.readlines()]
-        tenants = { it[0].strip() : dict(title=it[1].strip(), floor=i % 3 + 1, geom=None) for i, it in enumerate(pairs) }
+        tenants = { it[0].strip() : dict(title=it[1].strip(), floor=i % 3 + 1, geometry=None) for i, it in enumerate(pairs) }
         with codecs.open(tenants_json, 'w', 'utf-8') as json_file:
             json_file.write(json.dumps(tenants, ensure_ascii=False))
 
+graph_json = os.path.join('.','data', 'graph.json')
+if not os.path.exists(graph_json):
+    with codecs.open(graph_json, 'w', 'utf-8') as json_file:
+        graph = { "points": [], "graph": {}}
+        json_file.write(json.dumps(graph, ensure_ascii=False))
 
 app = Flask(__name__, static_folder='')
 
@@ -50,13 +55,24 @@ def post_tenant(id):
     geometry =  request.data
     with codecs.open(tenants_json, 'r', "utf-8") as file:
         tenants = json.load(file)
-        print tenants[id]
-        tenants[id]['geom'] = json.loads(geometry) if geometry else  None
+        tenants[id]['geometry'] = json.loads(geometry) if geometry else  None
         with codecs.open(tenants_json, 'w', 'utf-8') as json_file:
             json_file.write(json.dumps(tenants, ensure_ascii=False))
 
     return 'ok'
 
+@app.route('/graph/')
+def graph():
+    with codecs.open(graph_json, 'r', "utf-8") as file:
+        return file.read()
+
+@app.route('/graph/', methods=['POST'])
+def post_graph():
+    graph = request.data
+    graph = json.loads(graph)
+    with codecs.open(graph_json, 'w', "utf-8") as json_file:
+        json_file.write(json.dumps(graph, ensure_ascii=False))
+    return 'ok'
 
 
 server = wsgi.WSGIServer(('127.0.0.1', 5000), application=app, log=None)

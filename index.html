@@ -37,7 +37,7 @@
     }     
      </style>
 </head>
-<body ng-app="ozmap-editor">
+<body ng-app="ozmap-editor" class="w3-animate-opacity">
 
 <!-- Navbar -->
 <div class="w3-top ">
@@ -54,7 +54,10 @@
 
 
 <div id="cards" class="w3-container">
-
+    <div class="w3-panel w3-pale-red w3-leftbar w3-border-red" ng-controller="ErrorController" ng-show="error">
+        <span class="w3-closebtn" ng-click="close()">x</span>
+        <p>{{error}}</p>
+    </div> 
     <div class="w3-padding-8" ng-controller="TenantsController as ctrl" ng-hide="notSelected('tenants_tab') ">
         <table class="w3-table-all w3-hoverable" ng-hide="edit_tenant">
             <tr class="w3-light-grey">
@@ -113,8 +116,20 @@
         </div>
     </div>
     <div class="w3-padding-8" ng-controller="GraphController as ctrl" ng-hide="notSelected('graph_tab')">
+            <div class="w3-container">
+                <div class="w3-row w3-padding-8 w3-right" ng-hide="graph_saving">
+                    <button class="w3-btn w3-teal" ng-disabled="noChanges()" ng-click="onSave()">Сохранить</button>
+                    <button class="w3-btn w3-teal" ng-disabled="noChanges()" ng-click="onCancel()">Отменить</button>
+                </div>
+                
+            </div>
+
+            <p class="w3-row w3-padding-8 w3-right w3-text-green" ng-show="graph_saving">
+                Пожалуйста, подождите ...
+            </p>            
+
             <div class="w3-container" ng-hide="edit_point">
-                <div class="w3-row w3-padding-8">
+                <div class="w3-row w3-padding-8" ng-hide="graph_saving">
                     <button class="w3-btn w3-teal" 
                             ng-class="{'w3-white': isMode('MAP_SELECTION')}"
                             ng-click="mode('MAP_SELECTION')" ng-disabled="noFeatures()">select</button>

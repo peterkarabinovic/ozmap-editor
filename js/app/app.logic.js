@@ -2,7 +2,8 @@
 
 var INIT_ACTION = 'init',
     SELECT_TAB = 'select_tab',
-    SWITCH_FLOOR = "switch_floor"
+    SWITCH_FLOOR = "switch_floor",
+    ERROR = "ERROR";
 
 var TENANT_SELECT = 'tselect',
     TENANT_EDIT = 'tedit',
@@ -22,7 +23,11 @@ var GRAPH_LOADED = "graph_loaded",
     POINT_REMOVE = 'p_remove',
     EDGE_NEW = 'e_new',
     EDGE_REMOVE = 'e_remove',
-    POINT_MOVE = 'p_move'
+    POINT_MOVE = 'p_move',
+    GRAPH_SAVE = 'g_save',
+    GRAPH_SAVING = "g_saving",
+    GRAPH_HAS_SAVED = "g_has_saved",
+    GRAPH_CANCEL = "g_cancel"
 
 
 var MAP_DRAWING_POLYGON = "map_drawing",
@@ -41,7 +46,11 @@ app.factory('actions', function(){
         removePoint: function(point) {return {type: POINT_REMOVE, payload: point}},
         removeEdge: function(point) {return {type: EDGE_REMOVE, payload: point}},
         newEdge: function(edge) { return {type: EDGE_NEW, payload: edge}},
-        pointMove: function(point) { return {type: POINT_MOVE, payload: point }}
+        pointMove: function(point) { return {type: POINT_MOVE, payload: point }},
+        saveGraph: function() { return {type: GRAPH_SAVE} },
+        cancelGraphChanges: function() { return {type: GRAPH_CANCEL}},
+        graphLoaded: function(graph) { return { type: GRAPH_LOADED, payload: graph } },
+        error: function(er) { return {type: ERROR, payload: er}}
     };
 })
 
@@ -66,10 +75,10 @@ app.factory('reducers', function(){
                                 selected_floor: 1,
                                 selected_tenants: [],
                                 edit_tenant: null,
-                                edit_points: [],
-                                edit_edges: [],
                                 editing_mode: null,
-                                tenant_saving: false };
+                                tenant_saving: false,
+                                graph_saving: false,
+                                error: null };
 
         switch(action.type)
         {
@@ -83,6 +92,8 @@ app.factory('reducers', function(){
                                                selected_tenants: [],  
                                                edit_tenant: null,   
                                                editing_mode: null});
+            case ERROR:
+                return _.extend({}, ui_state, {error: action.payload, tenant_saving: false, graph_saving: false });
             case TENANT_EDIT:
                 var editing_mode = action.payload ? TENANT_EDIT : null;
                 return _.extend({}, ui_state, {edit_tenant: action.payload, editing_mode: editing_mode, selected_tab: 'tenants_tab'});
@@ -94,9 +105,13 @@ app.factory('reducers', function(){
                 return _.extend({}, ui_state, {selected_tenants: selected_ids});
             case TENANT_SAVING:
                 return _.extend({}, ui_state, {tenant_saving: true});
+            case GRAPH_SAVING:
+                return _.extend({}, ui_state, {graph_saving: true, editing_mode: null});                
             case TENANT_HAS_SAVED:
                 var selected_tenants = _.union(ui_state.selected_tenants, [action.payload.id]);
                 return _.extend({}, ui_state, {edit_tenant: null, editing_mode: null, tenant_saving: false, selected_tenants:selected_tenants});
+            case GRAPH_HAS_SAVED:
+                return _.extend({}, ui_state, {graph_saving: false});    
             case TENANT_SELETION:
                 return _.extend({}, ui_state, {selected_tenants: action.payload});
             case POINT_ADDING:
@@ -137,7 +152,11 @@ app.factory('reducers', function(){
         };
         switch(action.type){
             case GRAPH_LOADED:
-                return _.extend({},graph_state, {points:action.payload, edit_points: action.payload} )
+                var graph = action.payload;
+                return _.extend({}, graph_state, {points:graph.points, 
+                                                 edit_points: graph.points,
+                                                 edges: graph.edges,
+                                                edit_edges: graph.edges} )
 
             case POINT_REMOVE:
                 var point = action.payload;
@@ -179,7 +198,12 @@ app.factory('reducers', function(){
                     edit_edges[e.id] = _.extend( {}, e, {geometry: {type:"LineString", coordinates: [coords[0], point.geometry.coordinates]}});
                 });
                 return _.extend({}, graph_state, {edit_points:edit_points,edit_edges:edit_edges})
-                
+            
+            case GRAPH_CANCEL:
+                return _.extend({}, graph_state, {edit_points:graph_state.points,edit_edges:graph_state.edges} );
+            
+            case GRAPH_HAS_SAVED:
+                return _.extend({}, graph_state, {points:graph_state.edit_points,edges:graph_state.edit_edges} );
 
 
             default:
@@ -202,7 +226,7 @@ app.factory('reducers', function(){
             case POINT_NEW:
                 var geometry = action.payload;
                 var id = generate_id(state.graph.edit_points);; 
-                var point = { point_type: "-", edges: [], geometry: geometry, id:id, type: "Feature", floor: state.ui.floor }
+                var point = { point_type: "path", geometry: geometry, id:id, type: "Feature", floor: state.ui.selected_floor }
                 var edit_points = _.extend({}, state.graph.edit_points, _.object([ [id, point] ]) );
                 state.graph =  _.extend({}, state.graph, {edit_points: edit_points});
                 break;
