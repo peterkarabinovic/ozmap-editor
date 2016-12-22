@@ -287,8 +287,8 @@ app.controller("MapController", function(store, actions){
                     store.dispatch(actions.removeEdge(feature));
                 break;
 
-            case MAP_SELECTION:
-                break;
+            // case MAP_SELECTION:
+            //     break;
             default:
                 if(geo_type === "Polygon")
                     store.dispatch( actions.editTenant(feature) )
