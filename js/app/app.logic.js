@@ -21,6 +21,7 @@ var GRAPH_LOADED = "graph_loaded",
     POINT_NEW = 'p_new',
     POINT_REMOVE = 'p_remove',
     EDGE_NEW = 'e_new',
+    EDGE_REMOVE = 'e_remove',
     POINT_MOVE = 'p_move'
 
 
@@ -38,6 +39,7 @@ app.factory('actions', function(){
         newTenantGeometry: function(geom) { return {type:TENANT_NEW_GEOMETRY, payload: geom}},
         newPoint: function(geom) { return {type: POINT_NEW, payload: geom}},
         removePoint: function(point) {return {type: POINT_REMOVE, payload: point}},
+        removeEdge: function(point) {return {type: EDGE_REMOVE, payload: point}},
         newEdge: function(edge) { return {type: EDGE_NEW, payload: edge}},
         pointMove: function(point) { return {type: POINT_MOVE, payload: point }}
     };
@@ -147,7 +149,13 @@ app.factory('reducers', function(){
                 _.each(from_edges.concat(to_edges), function(e){
                     delete edit_edges[e.id]
                 });
-                return _.extend({}, graph_state, {edit_points:edit_points,edit_edges:edit_edges})
+                return _.extend({}, graph_state, {edit_points:edit_points,edit_edges:edit_edges});
+            case EDGE_REMOVE:
+                var edge = action.payload;
+                var edit_edges = _.extend({}, graph_state.edit_edges);
+                delete edit_edges[edge.id];
+                return _.extend({},graph_state, {edit_edges:edit_edges})
+                
             case EDGE_NEW:
                 var edge = action.payload;
                 var id = generate_id(graph_state.edit_edges);

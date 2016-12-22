@@ -85,7 +85,7 @@ app.controller("MapController", function(store, actions){
     });
 
     var pointDrawer = new L.Draw.Marker(map, {
-        icon: L.icon({iconUrl: "css/images/two_point.svg", iconSize: [18, 18]}),
+        icon: L.icon({iconUrl: "css/images/one_point.svg", iconSize: [18, 18]}),
         repeatMode: true
     });
 
@@ -108,6 +108,17 @@ app.controller("MapController", function(store, actions){
             icon: L.icon({iconUrl: "css/images/one_point.svg", iconSize: [18, 18]}),
         }
     });
+
+    /**********************************************************
+       Helper functions     
+     **********************************************************/
+    function features_fn(layer){
+        return _.chain(layer.getLayers()).map(function(l){ return l.getLayers()}).flatten().map(_.property('feature')).value();
+    }
+
+    function layer_by_featid(layer, feat_id){
+        return _.find(layer.getLayers(), function(l) { return l.getLayers()[0].feature.id === feat_id})
+    }
 
     /**********************************************************
        Logic, listeners & actions     
@@ -207,22 +218,31 @@ app.controller("MapController", function(store, actions){
     });
 
     function updateLayer(layer, features, options){
-        features = _.clone(features);
-        var ids = _.map(features, _.property('id'))
-        var removes = _.reject(layer.getLayers(), function(l) { 
-            var index = ids.indexOf(l.id);
-            if(index > -1 ){
-                ids.splice(index,1);
-                features.splice(index,1);
-            }
-            return index > -1;
-        })
-        var appends = _.map(features, function(p){
-            return L.geoJSON(p, options);
-        });
+        features = _.values(features);
+        var map_features = features_fn(layer);
+
         map.removeLayer(layer)
-        _.each(removes, function(l){ layer.removeLayer(l); })
-        _.each(appends, function(l){ layer.addLayer(l); })
+        var ff = _.difference(map_features, features);
+        // Removes
+        _.chain(map_features)
+                .difference(features)
+                .map( function(f) { 
+                    return layer_by_featid(layer, f.id);
+                 }) 
+                .each( function(l) { 
+                    layer.removeLayer(l);
+                })
+                .value();
+
+        // Adding
+         _.chain(features)
+                .difference(map_features)
+                .map(function(f){
+                    return L.geoJSON(f, options);
+                })
+                .each(function(l){
+                    layer.addLayer(l);
+                });
         map.addLayer(layer)
     }
 
