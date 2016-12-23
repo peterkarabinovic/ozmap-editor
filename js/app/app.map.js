@@ -29,7 +29,7 @@ var icons = {
     lift: L.icon({iconUrl: "data/icons/icn_lift.svg", iconSize: [35, 35]}),
     atm: L.icon({iconUrl: "data/icons/icn_bankomat.svg", iconSize: [35, 35]}), 
     terminal: L.icon({iconUrl: "data/icons/icn_info.svg", iconSize: [35, 35]}),
-    none: L.icon({iconUrl: "css/images/point.svg", iconSize: [35, 35]}),
+    none: L.icon({iconUrl: "css/images/point.svg", iconSize: [15, 15]}),
 }
 
 var editPointStyle2 = {
