@@ -25,11 +25,11 @@ var edgeStyle = {
 }
 
 var icons = {
-    escalator: L.icon({iconUrl: "data/icons/icn_ekskalator.svg", iconSize: [15, 15]}),
-    lift: L.icon({iconUrl: "data/icons/icn_lift.svg", iconSize: [15, 15]}),
-    atm: L.icon({iconUrl: "data/icons/icn_bankomat.svg", iconSize: [15, 15]}), 
-    terminal: L.icon({iconUrl: "data/icons/icn_info.svg", iconSize: [15, 15]}),
-    none: L.icon({iconUrl: "css/images/point.svg", iconSize: [15, 15]}),
+    escalator: L.icon({iconUrl: "data/icons/icn_ekskalator.svg", iconSize: [35, 35]}),
+    lift: L.icon({iconUrl: "data/icons/icn_lift.svg", iconSize: [35, 35]}),
+    atm: L.icon({iconUrl: "data/icons/icn_bankomat.svg", iconSize: [35, 35]}), 
+    terminal: L.icon({iconUrl: "data/icons/icn_info.svg", iconSize: [35, 35]}),
+    none: L.icon({iconUrl: "css/images/point.svg", iconSize: [35, 35]}),
 }
 
 var editPointStyle2 = {
@@ -84,7 +84,7 @@ app.controller("MapController", function(store, actions){
        .addLayer(pointLayer);
 
     var polygonDrawer = new L.Draw.Polygon(map, {
-                guidelineDistance: 10,
+                // guidelineDistance: 10,
                 shapeOptions: tenantEditStyle
     });
 
