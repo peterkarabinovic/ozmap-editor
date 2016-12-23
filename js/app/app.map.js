@@ -23,9 +23,13 @@ var edgeStyle = {
     color: '#009688',
     weight: 2
 }
-var pointStyle = {
-    icon: L.icon({iconUrl: "css/images/point.svg", iconSize: [15, 15]}),
-    draggable: true
+
+var icons = {
+    escalator: L.icon({iconUrl: "data/icons/icn_ekskalator.svg", iconSize: [15, 15]}),
+    lift: L.icon({iconUrl: "data/icons/icn_lift.svg", iconSize: [15, 15]}),
+    atm: L.icon({iconUrl: "data/icons/icn_bankomat.svg", iconSize: [15, 15]}), 
+    terminal: L.icon({iconUrl: "data/icons/icn_info.svg", iconSize: [15, 15]}),
+    none: L.icon({iconUrl: "css/images/point.svg", iconSize: [15, 15]}),
 }
 
 var editPointStyle2 = {
@@ -95,6 +99,10 @@ app.controller("MapController", function(store, actions){
         start: 'Кликните на карте для начала рисования.',
         cont: 'Кликните на карте продолжая фигуру.',
         end: 'Кликните на первую точку для завершения.'        
+    }
+
+    L.drawLocal.draw.handlers.marker.tooltip = {
+        start: 'Кликните на карте что бы поставить точку.',
     }
 
     L.Draw.Polygon = L.Draw.Polygon.extend({
@@ -265,7 +273,8 @@ app.controller("MapController", function(store, actions){
     store.on('graph.edit_points ui.selected_floor', function(){
         var options = { 
                 pointToLayer: function (feature, latlng) { 
-                    return L.marker(latlng, pointStyle).on('dragend', onDragend);
+                    var icon = icons[feature.point_type] || icons.none;    
+                    return L.marker(latlng, {icon:icon, draggable: true}).on('dragend', onDragend);
                 }
             }
         var floor = store.state.ui.selected_floor;
@@ -392,7 +401,6 @@ function EdgeDrawer(map, pointLayer){
             var latlngs = line.getLatLngs();
             e.latlng.lat += e.latlng.lat > first_point.geometry.coordinates[1] ? -5 :  5; 
             e.latlng.lng += e.latlng.lng > first_point.geometry.coordinates[0] ? -5 :  5; 
-            // e.latlng.lng = e.latlng.lng - 10; 
             latlngs[1] = e.latlng;
             line.setLatLngs(latlngs);
         }

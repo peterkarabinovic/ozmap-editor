@@ -75,10 +75,6 @@ app.controller("TenantsController", function($scope, store, actions){
         store.dispatch( actions.editTenant(null) )
     }
 
-    $scope.geomType = function(tenant){
-        return tenant && tenant.geometry ? 
-               (tenant.geometry.type === "Polygon" ? "Площадь" : "Точка") : "—"
-    }
 
     $scope.isVisible = function(tenant){
         return _.contains(ui().selected_tenants, tenant.id);
@@ -210,6 +206,25 @@ app.controller("GraphController", function($scope, store, actions){
     
     store.on('ui.editing_mode graph.edit_points graph.edit_edges '+
              'ui.graph_saving ui.edit_point ui.selected_floor ui.point_types', $update);
+
+    $scope.$watch('edit_point.point_type', function(point_type){
+        var floor = store.state.ui.selected_floor;
+        var generateID = function(point_type){
+            var max = _.chain(store.state.graph.edit_points)
+                    .filter(function(p){ return p.floor == floor})
+                    .filter(function(p){ return p.point_type == point_type})
+                    .map(_.property(point_type+'_id'))
+                    .max().value();
+            return max == -Infinity ? 1 : max + 1
+        }
+        switch (point_type) {
+            case 'lift':
+            case 'escalator':
+            case 'stairs':
+                $scope.edit_point[point_type + '_id'] = generateID(point_type);
+                break;        
+        }
+    })
     $update();
 });
 
