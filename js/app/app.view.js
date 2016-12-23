@@ -145,6 +145,10 @@ app.controller("GraphController", function($scope, store, actions){
                _.isEqual(graph.edges, graph.edit_edges) 
     }
 
+    $scope.onDelete = function(point){
+        store.dispatch(actions.removePoint(point));
+    }
+
     $scope.onSave = function(){
         store.dispatch(actions.saveGraph());
     }
@@ -215,7 +219,7 @@ app.controller("GraphController", function($scope, store, actions){
                     .filter(function(p){ return p.point_type == point_type})
                     .map(_.property(point_type+'_id'))
                     .max().value();
-            return max == -Infinity ? 1 : max + 1
+            return max == -Infinity ? 1 : max + 1;
         }
         switch (point_type) {
             case 'lift':

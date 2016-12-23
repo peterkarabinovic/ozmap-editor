@@ -253,6 +253,10 @@ app.factory('reducers', function(){
             case POINT_REMOVE:
                 if(_.isEmpty(state.graph.edit_points))
                     state.ui = _.extend({}, state.ui, {editing_mode:null} )
+                else if(state.ui.edit_point.id == action.payload.id) {
+                    state.ui = _.extend({}, state.ui, {edit_point:null} )
+                } 
+
                 break;
             case POINT_UPDATE_ATTRIBUTES:
                 var point = action.payload;
