@@ -53,11 +53,13 @@
 </div>
 
 
+
 <div id="cards" class="w3-container">
     <div class="w3-panel w3-pale-red w3-leftbar w3-border-red" ng-controller="ErrorController" ng-show="error">
         <span class="w3-closebtn" ng-click="close()">x</span>
         <p>{{error}}</p>
     </div> 
+
     <div ng-controller="TenantsController as ctrl" ng-hide="notSelected('tenants_tab') " style="margin-top: 8px">
 
         <table class="w3-table-all w3-hoverable" ng-hide="edit_tenant">
@@ -170,21 +172,32 @@
                             </td>
                         </tr>
                         <tr ng-show="edit_point.point_type == 'escalator'">
-                            <td>Номер эксколатора</td>
+                            <td>Номер</td>
                             <td>
                                  <input class="w3-input" type="number" min="1" ng-model="edit_point.escalator_id">
                             </td>
                         </tr>
-                        <tr ng-show="edit_point.point_type == 'escalator'">
-                            <td>На этаж</td>
+                        <tr ng-show="edit_point.point_type == 'lift'">
+                            <td>Номер</td>
                             <td>
-                                 <input class="w3-input" type="number" max="3" min="1" ng-model="edit_point.escalator_floor">
+                                 <input class="w3-input" type="number" min="1" ng-model="edit_point.lift_id">
                             </td>
                         </tr>
-                        <tr ng-show="edit_point.point_type == 'lift'">
-                            <td>Номер лифта</td>
+                        <tr ng-show="edit_point.point_type == 'stairs'">
+                            <td>Номер</td>
                             <td>
-                                 <input class="w3-input" type="number" min="1" >
+                                 <input class="w3-input" type="number" min="1" ng-model="edit_point.stairs_id">
+                            </td>
+                        </tr>
+                        <tr ng-show="isFloorTransition()">
+                            <td>На этажы</td>
+                            <td>
+                                <ul style="list-style-type: none;margin: 0px;">           
+                                    <li  ng-repeat="f in floors">
+                                        <input type="checkbox" class="w3-check" ng-model="check_floors[$index]" ng-true-value="
+                                        {{f}}" ng-false-value="{{undefined}}"/> {{f}} этаж 
+                                    </li>            
+                                </ul>
                             </td>
                         </tr>
                         <tr ng-show="edit_point.point_type == 'entry'">
@@ -209,7 +222,6 @@
 </div>
 
 
-
 <!--- MAP -->
 <div id="map" class="w3-light-grey" ng-controller="MapController">
 </div>   
@@ -221,6 +233,15 @@
         <button class="w3-btn w3-teal w3-border" ng-class="{'w3-white': floor == 3}" ng-click="switchFloor(3)">3 этаж</button>
     </p>
 </div>
+
+<script>
+    var TENANTS_API_URL = 'tenants/'
+    var GRAPH_API_URL = 'graph/'
+    var POINT_TYPES_URL = 'point_types/'
+    var LEVEL1_SVG_URL = 'data/1level.svg'
+    var LEVEL2_SVG_URL = 'data/2level.svg'
+    var LEVEL3_SVG_URL = 'data/3level.svg'
+</script>
 
 <script src="js/lib/angular.min.js"></script>
 <script src="js/lib/leaflet-src.js"></script>

@@ -7,7 +7,7 @@ app.factory('requests', function($http, actions){
             case TENANT_SAVE:
                 store.next({type: TENANT_SAVING});
                 var tenant = store.state.ui.edit_tenant;
-                $http.post('tenants/' + tenant.id, tenant.geometry).then(function(){
+                $http.post(TENANTS_API_URL + tenant.id, tenant.geometry).then(function(){
                          store.next({type: TENANT_HAS_SAVED, payload: tenant});
                      },function(msg){
                          store.next(actions.error(msg))
@@ -23,6 +23,7 @@ app.factory('requests', function($http, actions){
                     delete p.point_type;
                     return p;
                 });      
+
                 var edges = _.uniq(_.values(store.state.graph.edit_edges), function(e) { return e.from_id + ":" + e.to_id;});
                 graph.graph = _.reduce(edges, function(memo, edge){
                     var list = memo[edge.from_id] || [];
@@ -32,7 +33,28 @@ app.factory('requests', function($http, actions){
                     memo[edge.from_id] = list;
                     return memo;
                 },{});
-                $http.post('graph/', graph).then(function(){
+
+                // Adding transition edges
+                var findTransition = function(floor, type, num){
+                    return _.find(graph.points, function(cp){
+                        return cp.floor == floor && cp.type == type && cp[type+'_id'] === num; 
+                    })
+                }
+                var transition_points = _.filter(store.state.graph.edit_points, isTransitionPoint);
+                _.each(transition_points, function(tp){
+                    _.each(tp.transitions, function(floor){
+                        var dst = findTransition(floor, tp.point_type, tp[tp.point_type+'_id']);
+                        if(dst) {
+                            var list = graph.graph[tp.id] || [];
+                            // the weigt of transition edges is 0 
+                            list.push([dst.id, 0]); 
+                            graph.graph[tp.id] = list;
+                        }
+                    })
+                });
+
+
+                $http.post(GRAPH_API_URL, graph).then(function(){
                          store.next({type: GRAPH_HAS_SAVED});
                      }, function(msg){
                          store.next(actions.error(msg))
@@ -40,19 +62,19 @@ app.factory('requests', function($http, actions){
                 break;
 
             case INIT_ACTION: 
-                $http.get('tenants/').then(function(d){
-                    var tenants = _.mapObject(d.data, function(t, id){
-                        t.id = id; 
+                $http.get(TENANTS_API_URL).then(function(d){
+                    var tenants = _.reduce(d.data, function(memo, t){
+                        memo[t.id] = t;
                         t.type = 'Feature';
-                        return t;
-                    });
-                    store.next( actions.tenatsLoaded(tenants));
+                        return memo;
+                    }, {})
+                    store.next( actions.tenatsLoaded(tenants) );
                 });
                 break;
 
             case SELECT_TAB:
                 if(action.payload === 'graph_tab' && _.isEmpty(store.state.graph.points) ){
-                    $http.get('graph/').then(function(d){
+                    $http.get(GRAPH_API_URL).then(function(d){
                         var points = _.reduce(d.data.points, function(obj, p){
                             p.point_type = p.type;
                             p.type = 'Feature';
@@ -67,6 +89,7 @@ app.factory('requests', function($http, actions){
                             var from = points[point_id];
                             _.each(point_edges, function(e){
                                 var to = points[e[0]];
+                                if(isTransitionPoint(from) && isTransitionPoint(to)) return;
                                 var edge = {
                                     id: id_generator(),
                                     from_id: from.id,
@@ -82,6 +105,14 @@ app.factory('requests', function($http, actions){
                         })
                         store.next(actions.graphLoaded({points:points, edges:edges}))
                     });
+
+                    $http.get(POINT_TYPES_URL).then(function(d){
+                        var ptypes = _.reduce(d.data, function(memo, pt){
+                            memo[pt.id] = pt;
+                            return memo;
+                        }, {})
+                        store.next(  {type: POINT_TYPES_LOADED, payload: ptypes} );
+                    })
                 }
                 break;
         }

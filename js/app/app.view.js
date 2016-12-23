@@ -125,17 +125,22 @@ app.controller("TenantsController", function($scope, store, actions){
 });
 
 app.controller("GraphController", function($scope, store, actions){
-    // $scope.types = [ {id:'path', name: "Проход"} , {id:'entry', name: "Точка входа"} , { id: 'escalator', name: "Экскалатор" } ]
-    $scope.types = { "path": {id:'path', name: "Проход"} , "entry": {id:'entry', name: "Точка входа"} , "escalator": { id: 'escalator', name: "Экскалатор" } }
     var $update = _.partial(applyScope($scope), function() {
         var floor = store.state.ui.selected_floor;
         $scope.points = _.filter( store.state.graph.edit_points, function(p){ return p.floor === floor});
         $scope.editing_mode = store.state.ui.editing_mode;
         $scope.graph_saving = store.state.ui.graph_saving;
         $scope.edit_point = null;
-        if(store.state.ui.edit_point) 
+        $scope.types = store.state.ui.point_types;
+        if(store.state.ui.edit_point) {
             $scope.edit_point = _.pick(store.state.ui.edit_point, function(val, key){ return key !== 'geometry' });
-        
+            // floors
+            $scope.floors = _.without([1,2,3], $scope.edit_point.floor);
+            $scope.edit_point.transitions =  $scope.edit_point.transitions || [];
+            var floor_inds = _.map($scope.edit_point.transitions, function(f) { return _.indexOf($scope.floors, f) })
+            $scope.check_floors = _.object(floor_inds, $scope.edit_point.transitions)
+        }
+
     });
 
     $scope.noChanges = function(){
@@ -163,22 +168,38 @@ app.controller("GraphController", function($scope, store, actions){
     }
 
     $scope.onApply = function(point){
+        point = _.clone(point)
         var er = function(msg) { store.dispatch(actions.error(msg))};
         if(point.point_type === 'escalator') {
             if(!point.escalator_id) return er("Не установлен номер экскалатора");
-            if(!point.escalator_floor) return er("Не установлен этаж экскалатора");
-            if(point.escalator_floor === point.floor) return er("Этаж экскалатора не должен совпадать с этажом точки");
-
+        }
+        if(point.point_type === 'lift') {
+            if(!point.lift_id) return er("Не установлен номер лифта");
+        }
+        if(point.point_type === 'stairs') {
+            if(!point.stairs_id) return er("Не установлен номер лестницы");
         }
         if(point.point_type === 'entry'){
             if(!point.tenant_id) return er("Не установлен арендатор");
+        }
+        if($scope.isFloorTransition()) {            
+           if(_.isEmpty($scope.check_floors)) return er("Не установлен этаж перехода"); 
+           point.transitions = _.compact(_.values($scope.check_floors));
+        }
+        else {
+            delete point.transitions;
         }
         er(null);
         store.dispatch(actions.updatePointAttrs(point));
     }
 
+    $scope.isFloorTransition = function(){
+        return isTransitionPoint($scope.edit_point);
+    }
+
     $scope.noPropertyChanged = function(){
         var o2 = _.pick(store.state.ui.edit_point, function(val, key){ return key !== 'geometry' });
+        o2.transitions = _.compact(_.values($scope.check_floors));
         return _.isEqual($scope.edit_point,o2);
     };
 
@@ -187,6 +208,8 @@ app.controller("GraphController", function($scope, store, actions){
     $scope.noFeatures = function() { return $scope.points.length === 0; }
     $scope.lessThen2 = function(){ return $scope.points.length < 2; }
     
-    store.on('ui.editing_mode graph.edit_points graph.edit_edges ui.graph_saving ui.edit_point', $update);
+    store.on('ui.editing_mode graph.edit_points graph.edit_edges '+
+             'ui.graph_saving ui.edit_point ui.selected_floor ui.point_types', $update);
     $update();
 });
+

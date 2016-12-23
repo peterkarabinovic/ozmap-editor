@@ -5,6 +5,8 @@ import codecs
 import json
 import os
 import random
+
+import flask
 from flask import Flask, jsonify
 from flask import request
 from flask import send_from_directory
@@ -16,7 +18,7 @@ if not os.path.exists(tenants_json):
     f = os.path.join('.', 'data', 'tenats.txt')
     with codecs.open(f, 'r', "utf-8") as file:
         pairs = [ line.split('-') for line in file.readlines()]
-        tenants = { it[0].strip() : dict(title=it[1].strip(), floor=i % 3 + 1, geometry=None) for i, it in enumerate(pairs) }
+        tenants = [ dict(id=it[0].strip(), title=it[1].strip(), floor=i % 3 + 1, geometry=None) for i, it in enumerate(pairs) ]
         with codecs.open(tenants_json, 'w', 'utf-8') as json_file:
             json_file.write(json.dumps(tenants, ensure_ascii=False))
 
@@ -55,7 +57,8 @@ def post_tenant(id):
     geometry =  request.data
     with codecs.open(tenants_json, 'r', "utf-8") as file:
         tenants = json.load(file)
-        tenants[id]['geometry'] = json.loads(geometry) if geometry else  None
+        tenant = next( ( t for t in tenants if t['id'] == id), None )
+        tenant['geometry'] = json.loads(geometry) if geometry else  None
         with codecs.open(tenants_json, 'w', 'utf-8') as json_file:
             json_file.write(json.dumps(tenants, ensure_ascii=False))
 
@@ -71,9 +74,20 @@ def post_graph():
     graph = request.data
     graph = json.loads(graph)
     with codecs.open(graph_json, 'w', "utf-8") as json_file:
-        json_file.write(json.dumps(graph, ensure_ascii=False))
+        json_file.write(json.dumps(graph, ensure_ascii=False, indent=2))
     return 'ok'
 
+
+@app.route('/point_types/')
+def point_types():
+    return flask.jsonify([
+        { "id": "path", "name": "Проход"},
+        { "id": "entry", "name": "Точка входа"},
+        { "id": "escalator", "name": "Экскалатор"},
+        { "id": "lift", "name": "Лифт"},
+        { "id": "stairs", "name": "Лестница"},
+        { "id": "terminal", "name": "Терминал"},
+    ]);
 
 server = wsgi.WSGIServer(('127.0.0.1', 5000), application=app, log=None)
 server.serve_forever()

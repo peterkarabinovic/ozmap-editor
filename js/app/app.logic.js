@@ -29,11 +29,17 @@ var GRAPH_LOADED = "graph_loaded",
     GRAPH_HAS_SAVED = "g_has_saved",
     GRAPH_CANCEL = "g_cancel",
     EDIT_POINT = "p_edit",
-    POINT_UPDATE_ATTRIBUTES = "p_update_attr"
+    POINT_UPDATE_ATTRIBUTES = "p_update_attr",
+    POINT_TYPES_LOADED = "p_types_loaded"
 
 
 var MAP_DRAWING_POLYGON = "map_drawing",
     MAP_GEOJSON = 'map_geojson';
+
+
+function isTransitionPoint(point){
+    return point && _.contains(['escalator', 'lift', 'stairs'], point.point_type)
+}
 
 app.factory('actions', function(){
     return {
@@ -83,7 +89,8 @@ app.factory('reducers', function(){
                                 tenant_saving: false,
                                 graph_saving: false,
                                 error: null,
-                                edit_point: null,   };
+                                edit_point: null,
+                                point_types: []   };
 
         switch(action.type)
         {
@@ -130,7 +137,11 @@ app.factory('reducers', function(){
                 return _.extend({}, ui_state, {editing_mode: MAP_SELECTION});
 
             case EDIT_POINT:
-                return _.extend({}, ui_state, {edit_point: action.payload});
+                return _.extend({}, ui_state, {edit_point: _.clone(action.payload)});
+
+            case POINT_TYPES_LOADED:
+                return _.extend({}, ui_state, {point_types: action.payload});
+
             default:
                 return ui_state;
         }
@@ -165,7 +176,7 @@ app.factory('reducers', function(){
                 return _.extend({}, graph_state, {points:graph.points, 
                                                  edit_points: graph.points,
                                                  edges: graph.edges,
-                                                edit_edges: graph.edges} )
+                                                 edit_edges: graph.edges} )
 
             case POINT_REMOVE:
                 var point = action.payload;
@@ -246,21 +257,11 @@ app.factory('reducers', function(){
             case POINT_UPDATE_ATTRIBUTES:
                 var point = action.payload;
                 var epoint = state.graph.edit_points[point.id];
-                if(point.point_type === 'escalator') {
-                    var properties = _.pick(point, function(_,key) { return key.startsWith('escalator') });
-                    point = _.extend({}, epoint, {point_type: point.point_type}, properties);
-                }
-                else if(point.point_type === 'entry') {
-                    var properties = _.pick(point, function(_,key) { return key.startsWith('tenant') });
-                    point = _.extend({}, epoint, {point_type: point.point_type}, properties);
-                }
-                else if(point.point_type === 'path') {
-                    var properties = _.pick(point, function(_,key) { return !key.startsWith('tenant') &&  !key.startsWith('escalator')  });
-                    point = _.extend({}, epoint, {point_type: point.point_type}, properties);
-                }
+                var properties = _.pick(point, function(_,key) { return key != 'geometry' });
+                point = _.extend({}, epoint, {point_type: point.point_type}, properties);
                 var edit_points = _.extend({}, state.graph.edit_points, _.object([ [point.id, point] ]) );
                 state.graph =  _.extend({}, state.graph, {edit_points: edit_points});
-                state.ui = _.extend({}, state.ui, {edit_point: point});
+                state.ui = _.extend({}, state.ui, {edit_point: null});
                 break;
 
         }

@@ -1,1 +1,66 @@
-{"graph": {"1": [[2, 689]], "3": [[2, 247]], "4": [[3, 154]]}, "points": [{"geometry": {"type": "Point", "coordinates": [886, 492]}, "type": "path", "id": 1, "floor": 1}, {"geometry": {"type": "Point", "coordinates": [378, 958]}, "type": "path", "id": 2, "floor": 1}, {"geometry": {"type": "Point", "coordinates": [172, 822]}, "type": "path", "id": 3, "floor": 1}, {"geometry": {"type": "Point", "coordinates": [180, 668]}, "type": "path", "id": 4, "floor": 1}]}
+{
+  "graph": {
+    "2": [
+      [
+        6, 
+        209
+      ], 
+      [
+        5, 
+        0
+      ]
+    ], 
+    "5": [
+      [
+        2, 
+        0
+      ]
+    ]
+  }, 
+  "points": [
+    {
+      "escalator_id": 1, 
+      "floor": 1, 
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          487, 
+          417
+        ]
+      }, 
+      "transitions": [
+        2
+      ], 
+      "type": "escalator", 
+      "id": 2
+    }, 
+    {
+      "escalator_id": 1, 
+      "floor": 2, 
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          446, 
+          412
+        ]
+      }, 
+      "transitions": [
+        1
+      ], 
+      "type": "escalator", 
+      "id": 5
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          506, 
+          625
+        ]
+      }, 
+      "type": "path", 
+      "id": 6, 
+      "floor": 1
+    }
+  ]
+}

@@ -23,10 +23,16 @@ var edgeStyle = {
     color: '#009688',
     weight: 2
 }
-var pointStyle2 = {
+var pointStyle = {
     icon: L.icon({iconUrl: "css/images/point.svg", iconSize: [15, 15]}),
     draggable: true
 }
+
+var editPointStyle2 = {
+    icon: L.icon({iconUrl: "css/images/edit_point.svg", iconSize: [15, 15]}),
+    draggable: true
+}
+
 
 app.controller("MapController", function(store, actions){
 
@@ -38,7 +44,7 @@ app.controller("MapController", function(store, actions){
     var map = L.map('map', {
         crs: L.CRS.Simple,
         maxZoom: 2,
-        minZoom: -1,
+        minZoom: 0,
         zoomControl: false
     });
 
@@ -46,13 +52,14 @@ app.controller("MapController", function(store, actions){
        Floor switch    
      **********************************************************/
     var floor_img_size = [ [896, 1171.4], [814.4, 964.9], [781.8, 752.1] ]
+    var floor_imgs = [LEVEL1_SVG_URL,LEVEL2_SVG_URL,LEVEL3_SVG_URL]
     var cur_img = null;
     var updateFloor = function(){
         if(cur_img)
             map.removeLayer(cur_img)
         var floor = store.state.ui.selected_floor;
         var bounds = [[0,0], floor_img_size[floor-1]];
-        cur_img = L.imageOverlay('data/'+floor+'level.svg', bounds, {crossOrigin:true}).addTo(map);
+        cur_img = L.imageOverlay(floor_imgs[floor-1], bounds, {crossOrigin:true}).addTo(map);
         map.fitBounds(bounds);
         
     }
@@ -66,7 +73,7 @@ app.controller("MapController", function(store, actions){
     var tenantEditLayer = new L.FeatureGroup();
     var pointLayer = new L.FeatureGroup();
     var edgeLayer = new L.FeatureGroup();
-    var editPointMarker = L.circleMarker([], editPointStyle)
+    var editPointMarker = L.marker([], editPointStyle2).setZIndexOffset(1000)
     map.addLayer(tenantLayer)
        .addLayer(tenantEditLayer)
        .addLayer(edgeLayer)
@@ -177,13 +184,21 @@ app.controller("MapController", function(store, actions){
         }
     }));
 
-    store.on("ui.edit_point", function(e){
+    store.on("ui.edit_point", selfcheck(function(e){
         var edit_point = e.new_state;
         if(edit_point) 
             editPointMarker.setLatLng(latlngF(edit_point)).addTo(map);
         else
             map.removeLayer(editPointMarker);
-    });
+    }));
+
+    editPointMarker.on('drag', selfcheck(function(e){
+        var latlng = e.target.getLatLng();
+        var coords = [latlng.lng, latlng.lat];
+        store.state.ui.edit_point.geometry = { type: "Point", coordinates: coords };
+        store.dispatch(actions.pointMove(store.state.ui.edit_point)); 
+
+    }));    
 
     var redrawTenants = function(){
         var selected_ids = _.clone(store.state.ui.selected_tenants);
@@ -247,18 +262,23 @@ app.controller("MapController", function(store, actions){
         map.addLayer(layer)
     }
 
-    store.on('graph.edit_points', function(){
+    store.on('graph.edit_points ui.selected_floor', function(){
         var options = { 
                 pointToLayer: function (feature, latlng) { 
-                    return L.marker(latlng, pointStyle2).on('dragend', onDragend);
+                    return L.marker(latlng, pointStyle).on('dragend', onDragend);
                 }
             }
-        updateLayer(pointLayer, store.state.graph.edit_points, options);
+        var floor = store.state.ui.selected_floor;
+        var points = _.filter( store.state.graph.edit_points, function(p){ return p.floor === floor});
+        updateLayer(pointLayer, points, options);
         pointLayer.setZIndex(500);
     });
 
-    store.on('graph.edit_edges', function(){
-        updateLayer(edgeLayer, store.state.graph.edit_edges, edgeStyle);
+    store.on('graph.edit_edges ui.selected_floor', function(){
+        var floor = store.state.ui.selected_floor;
+        var points = store.state.graph.edit_points;
+        var edges = _.filter( store.state.graph.edit_edges, function(e) { return points[e.from_id].floor === floor; })
+        updateLayer(edgeLayer, edges, edgeStyle);
         _.each(edgeLayer.getLayers(), function(l){
             L.Arrows.add(l.getLayers()[0]);
         })
@@ -302,6 +322,8 @@ app.controller("MapController", function(store, actions){
         var point = e.target.toGeoJSON();
         store.dispatch(actions.pointMove(point))
     }
+
+
 
     map.on(L.Draw.Event.CREATED, function (e) {
         var layer = e.layer;
