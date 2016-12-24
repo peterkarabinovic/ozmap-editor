@@ -1,4 +1,4 @@
-var app = angular.module('ozmap-editor', []);
+var app = angular.module('ozmap-site', []);
 
 app.run(function(store){
     store.dispatch({type: INIT_ACTION });

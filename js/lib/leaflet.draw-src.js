@@ -544,7 +544,9 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 				.on('mouseup', this._onMouseUp, this) // Necessary for 0.7 compatibility
 				.on('mousemove', this._onMouseMove, this)
 				.on('zoomlevelschange', this._onZoomEnd, this)
-				.on('touchstart', this._onTouch, this)
+				// Ошибка с установкой двух точек в Edge и в Chorme >55 version
+				//.on('touchstart', this._onTouch, this)
+				// Ошибка с установкой двух точек в Edge и в Chorme >55 version				
 				.on('zoomend', this._onZoomEnd, this);
 		}
 	},

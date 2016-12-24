@@ -24,12 +24,9 @@ var edgeStyle = {
     weight: 2
 }
 
-var icons = {
-    escalator: L.icon({iconUrl: "data/icons/icn_ekskalator.svg", iconSize: [35, 35]}),
-    lift: L.icon({iconUrl: "data/icons/icn_lift.svg", iconSize: [35, 35]}),
-    atm: L.icon({iconUrl: "data/icons/icn_bankomat.svg", iconSize: [35, 35]}), 
-    terminal: L.icon({iconUrl: "data/icons/icn_info.svg", iconSize: [35, 35]}),
-    none: L.icon({iconUrl: "css/images/point.svg", iconSize: [15, 15]}),
+var icons = function(point_type){
+    var size = point_type == 'path' ? [15, 15] : [35, 35]; 
+    return L.icon({iconUrl: "data/icons/"+point_type+".svg", iconSize: size})
 }
 
 var editPointStyle2 = {
@@ -48,7 +45,7 @@ app.controller("MapController", function(store, actions){
     var map = L.map('map', {
         crs: L.CRS.Simple,
         maxZoom: 2,
-        minZoom: 0,
+        minZoom: -1,
         zoomControl: false
     });
 
@@ -108,12 +105,14 @@ app.controller("MapController", function(store, actions){
     L.Draw.Polygon = L.Draw.Polygon.extend({
         options : {
             icon: L.icon({iconUrl: "css/images/one_point.svg", iconSize: [18, 18]}),
+            touchIcon: L.icon({iconUrl: "css/images/one_point.svg", iconSize: [18, 18]}),             
         }
     });
     
     L.Edit.PolyVerticesEdit = L.Edit.PolyVerticesEdit.extend({
         options : {
             icon: L.icon({iconUrl: "css/images/one_point.svg", iconSize: [18, 18]}),
+            touchIcon: L.icon({iconUrl: "css/images/one_point.svg", iconSize: [18, 18]}), 
         }
     });
 
@@ -273,7 +272,7 @@ app.controller("MapController", function(store, actions){
     store.on('graph.edit_points ui.selected_floor', function(){
         var options = { 
                 pointToLayer: function (feature, latlng) { 
-                    var icon = icons[feature.point_type] || icons.none;    
+                    var icon = icons(feature.point_type);    
                     return L.marker(latlng, {icon:icon, draggable: true}).on('dragend', onDragend);
                 }
             }

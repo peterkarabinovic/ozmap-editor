@@ -35,6 +35,10 @@ app = Flask(__name__, static_folder='')
 def index():
   return app.send_static_file('index.html')
 
+@app.route('/site')
+def site():
+  return app.send_static_file('site.html')
+
 @app.route('/js/<path:path>')
 def send_js(path):
     return send_from_directory('js', path)
@@ -87,7 +91,10 @@ def point_types():
         { "id": "lift", "name": "Лифт"},
         { "id": "stairs", "name": "Лестница"},
         { "id": "terminal", "name": "Терминал"},
-        { "id": "atm", "name": "Банкомат"}
+        { "id": "atm", "name": "Банкомат"},
+        { "id": "wc", "name": "Туалет"},
+        { "id": "medpunkt", "name": "Медпункт"},
+        { "id": "info", "name": "Информация"}
     ]);
 
 server = wsgi.WSGIServer(('127.0.0.1', 5000), application=app, log=None)

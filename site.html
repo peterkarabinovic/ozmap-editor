@@ -1,0 +1,80 @@
+<html>
+   <head>
+      <title>OZ mall</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="css/leaflet.css" />
+      <link rel="stylesheet" href="css/w3.css">
+      <link rel="stylesheet" href="css/w3-theme-pink.css">
+	  <style>
+            header { height: 10%;}
+            #content { height: 88% }
+            #map { height: 100% }
+            .leaflet-container { background: none;}
+	  </style>
+   </head>
+   <body ng-app="ozmap-site" class="w3-theme-light">   
+      <header class="w3-container w3-theme w3-justify">   
+          <div class="w3-row">
+              <div class="w3-col s11"><h1>OZ mall </h1></div>
+              <div class="w3-col s1"><a class="w3-small" href="/">Редактор</a></div>
+          </div>
+      </header>
+      <div id="content" >
+        <div class="w3-row w3-panel">
+            <div class="w3-col s2  " ng-controller="PointController">
+                <div class="w3-center w3-small">
+                    <button class="w3-btn "
+                            ng-class="{'w3-theme-l2': floor == 1, 'w3-white w3-text-theme': floor !== 1}" 
+                            ng-click="onFloor(1)">1 этаж</button>
+                    <button class="w3-btn w3-white" 
+                            ng-class="{'w3-theme-l2': floor == 2, 'w3-white w3-text-theme': floor !== 2}"
+                            ng-click="onFloor(2)">2 этаж</button>
+                    <button class="w3-btn w3-white" 
+                            ng-class="{'w3-theme-l2': floor == 3, 'w3-white w3-text-theme': floor !== 3}"
+                            ng-click="onFloor(3)">3 этаж</button>
+                </div>
+                <div class="w3-padding-0">
+                    <h2 class="w3-text-theme">На этаже:</h2>
+                    <table class="w3-table w3-hoverable " style="cursor:pointer"> 
+                        <tr class="w3-hover-theme" ng-repeat="t in types track by t.id">
+                            <td style="width: 37px"><img src="data/icons/{{t.id}}.svg" alt="" width="35px" height="35px"></td>
+                            <td>{{t.name}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div id="map" ng-controller="MapController" class="w3-col s7">
+            </div>
+            <div class="w3-col s3 ">
+                <div class="w3-row">
+                    <div class="w3-col s10">
+                        <input class="w3-input " type="text" placeholder="Что ищете?">
+                    </div>
+                    <button class="w3-col w3-btn w3-theme-l2 s2">x</button>
+                </div>
+            </div>
+        </div>          
+      </div>
+
+<script>
+    var TENANTS_API_URL = 'tenants/'
+    var GRAPH_API_URL = 'graph/'
+    var POINT_TYPES_URL = 'point_types/'
+    var LEVEL1_SVG_URL = 'data/1level.svg'
+    var LEVEL2_SVG_URL = 'data/2level.svg'
+    var LEVEL3_SVG_URL = 'data/3level.svg'
+</script>
+
+<script src="js/lib/angular.min.js"></script>
+<script src="js/lib/leaflet-src.js"></script>
+<script src="js/lib/underscore-1.8.3.js"></script>
+<script src="js/app-site/app.js"></script>
+<script src="js/app-site/app.logic.js"></script>
+<script src="js/app-site/app.map.js"></script>
+<script src="js/app-site/app.requests.js"></script>
+<script src="js/app-site/app.store.js"></script>
+<script src="js/app-site/app.view.js"></script>
+
+   </body>
+</html>

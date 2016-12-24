@@ -1,9 +1,19 @@
 {
   "graph": {
+    "9": [
+      [
+        7, 
+        61
+      ], 
+      [
+        8, 
+        68
+      ]
+    ], 
     "2": [
       [
         6, 
-        209
+        332
       ], 
       [
         5, 
@@ -15,6 +25,12 @@
         2, 
         0
       ]
+    ], 
+    "6": [
+      [
+        9, 
+        85
+      ]
     ]
   }, 
   "points": [
@@ -24,8 +40,8 @@
       "geometry": {
         "type": "Point", 
         "coordinates": [
-          487, 
-          417
+          626, 
+          302
         ]
       }, 
       "transitions": [
@@ -54,12 +70,123 @@
       "geometry": {
         "type": "Point", 
         "coordinates": [
-          506, 
-          625
+          537.5, 
+          621.5
         ]
       }, 
       "type": "path", 
       "id": 6, 
+      "floor": 1
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          569, 
+          713
+        ]
+      }, 
+      "tenant_id": "73", 
+      "type": "entry", 
+      "id": 7, 
+      "floor": 1
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          442, 
+          693
+        ]
+      }, 
+      "tenant_id": "4", 
+      "type": "entry", 
+      "id": 8, 
+      "floor": 1
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          509, 
+          702
+        ]
+      }, 
+      "tenant_id": "73", 
+      "type": "entry", 
+      "id": 9, 
+      "floor": 1
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          558.5, 
+          418
+        ]
+      }, 
+      "type": "atm", 
+      "id": 10, 
+      "floor": 1
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          614, 
+          435.5
+        ]
+      }, 
+      "type": "atm", 
+      "id": 11, 
+      "floor": 1
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          519, 
+          580
+        ]
+      }, 
+      "type": "atm", 
+      "id": 12, 
+      "floor": 1
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          532, 
+          515
+        ]
+      }, 
+      "type": "atm", 
+      "id": 13, 
+      "floor": 1
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          589, 
+          543
+        ]
+      }, 
+      "type": "atm", 
+      "id": 14, 
+      "floor": 1
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          570, 
+          604
+        ]
+      }, 
+      "type": "atm", 
+      "id": 15, 
       "floor": 1
     }
   ]
